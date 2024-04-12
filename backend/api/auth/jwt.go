@@ -33,7 +33,7 @@ func SetupAuth(api *fiber.Router) {
 	// 		Key:    keys.publicKey,
 	// 	},
 	// }))
-	zap.S().Debugln("JWT auth enabled successfully!")
+	// zap.S().Debugln("JWT auth enabled successfully!")
 }
 
 func loginRouter(c *fiber.Ctx) error {
