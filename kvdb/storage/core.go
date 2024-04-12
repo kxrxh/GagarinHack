@@ -40,8 +40,10 @@ func (kv *KeyValueStorage) loadFromDisk() error {
 
 	// Unmarshal the data into the map
 	if err := json.Unmarshal(file, &kv.data); err != nil {
+		log.Println(kv.filePath, file)
 		return errors.New("unable to unmarshal file")
 	}
+
 
 
 	return nil
