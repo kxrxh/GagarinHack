@@ -29,7 +29,7 @@ Errors are returned in JSON format with appropriate HTTP status codes. The respo
   ```json
   {
     "key": "string",
-    "val": "string"
+    "value": "string"
   }
   ```
 - **Responses**:
@@ -63,7 +63,7 @@ Below is an example of how to interact with the API endpoints using cURL:
 
 2. **POST Request**:
    ```bash
-   curl -X POST -H "Content-Type: application/json" -d '{"key": "example_key", "val": "example_value"}' http://localhost:5173/db/v1/
+   curl -X POST -H "Content-Type: application/json" -d '{"key": "example_key", "value": "example_value"}' http://localhost:5173/db/v1/
    ```
 
 3. **DELETE Request**:
@@ -82,7 +82,7 @@ Sure, here are examples of cURL commands with data for each endpoint:
 
 2. **POST Request**:
    ```bash
-   curl -X POST -H "Content-Type: application/json" -d '{"key": "example_key", "val": "example_value"}' http://localhost:5173/db/v1/
+   curl -X POST -H "Content-Type: application/json" -d '{"key": "example_key", "value": "example_value"}' http://localhost:5173/db/v1/
    ```
 
 3. **DELETE Request**:
