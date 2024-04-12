@@ -12,17 +12,10 @@
       "sslmode": "disable",
       "sslrootcert": "database/cert/ca.crt",
       "sslcert": "database/cert/client.root.crt",
-      "sslkey": "database/cert/client.root.key",
-      "schema": "schema.sql"
-    },
-    "redis": {
-      "ttl" : 60,
-      "host": "redis:6379",
-      "password": "",
-      "poll": 5
+      "sslkey": "database/cert/client.root.key"
     },
     "bot": {
-      "bot_id": "bot6983241538",
-      "api_key": "AAHNmAHQb2xphCyQzy9YE1AVZiKfttNKkNg"
+      "bot_id": "bot7193262302",
+      "api_key": "AAFadZQ58TP9vGRSV4Gl0fj_GB9KAKQrTCU"
     }
   }

@@ -89,11 +89,12 @@ func registrationRouter(c *fiber.Ctx) error {
 		})
 	}
 
+	// TODO: implement password hashing and comparing instead of this
 	// Validating password
 	if len(form.HashPassword) < 8 {
-		zap.S().Debug("Password too short!")
+		zap.S().Debug("Password is too short!")
 		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
-			"message": "Password too short!",
+			"message": "Password is too short!",
 		})
 	}
 	// Choosing registration method
