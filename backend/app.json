@@ -1,0 +1,28 @@
+{
+    "app": {
+      "port": "3033"
+    },
+    "dev": true,
+    "db": {
+      "user": "root",
+      "host": "crdb",
+      "port": "26257",
+      "password": "",
+      "dbname": "defaultdb",
+      "sslmode": "disable",
+      "sslrootcert": "database/cert/ca.crt",
+      "sslcert": "database/cert/client.root.crt",
+      "sslkey": "database/cert/client.root.key",
+      "schema": "schema.sql"
+    },
+    "redis": {
+      "ttl" : 60,
+      "host": "redis:6379",
+      "password": "",
+      "poll": 5
+    },
+    "bot": {
+      "bot_id": "bot6983241538",
+      "api_key": "AAHNmAHQb2xphCyQzy9YE1AVZiKfttNKkNg"
+    }
+  }
