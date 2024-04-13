@@ -293,7 +293,7 @@ const STAGE = {
   PROMPT_BIOGRAPHY: 200,
   SELECT_BIOGRAPHY: 201,
   BIOGRAPHY_QUESTION: 202,
-  BIOGRAPHY_СREATION: 203,
+  BIOGRAPHY_CREATION: 203,
   VIEW_BIOGRAPHY: 204
 }
 export default {
@@ -359,8 +359,8 @@ export default {
             this.answers = Array.from({ length: this.questions.length }).fill("");
             this.stage = STAGE.QUESTION;
           }, (err) => {
-            // TODO handle error
-            debugger;
+            this.$notify({text:"Не удалось получить вопросы, попробуйте позже.", type: "error"});
+            console.log(err);
           });
       },
       next() {
@@ -419,19 +419,24 @@ export default {
             this.stage = STAGE.VIEW;
           }
         }
+        this.results = ["", ""];
         MemoryService.getStory(MODEL, "epitaph", this.name, this.sex, this.dates[0], this.dates[1], questions, (data) => {
           this.results[0] = data.response;
           checkContinue();
         }, (err) => {
-          // TODO handle error
-          debugger;
+          this.$notify({text:"Не удалось сгенерировать эпитафию с использованием Gigachat, попробуйте позже.", type: "error"});
+          this.results[0] = "Ошибка";
+          checkContinue();
+          console.log(err);
         })
         MemoryService.getStory("yandex", "epitaph", this.name, this.sex, this.dates[0], this.dates[1], questions, (data) => {
           this.results[1] = data.response;
           checkContinue();
         }, (err) => {
-          // TODO handle error
-          debugger;
+          this.$notify({text:"Не удалось сгенерировать эпитафию с использованием YandexGPT, попробуйте позже.", type: "error"});
+          this.results[1] = "Ошибка";
+          checkContinue();
+          console.log(err);
         })
       },
       reset() {
