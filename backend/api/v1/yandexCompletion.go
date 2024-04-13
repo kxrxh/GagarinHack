@@ -38,7 +38,12 @@ func yandexCompletion(c *fiber.Ctx) error {
 
 	USER_PROMPT = requestBody.RequestMessage
 
-	reqBodyBytes, _ := json.Marshal(getYandexRequestBody(folderId, "1024", 0.1))
+	extraContext := []struct {
+		Role string
+		Text string
+	}{}
+
+	reqBodyBytes, _ := json.Marshal(getYandexRequestBody(folderId, "1024", 0.1, extraContext))
 
 	req, _ := http.NewRequest("POST", "https://llm.api.cloud.yandex.net/foundationModels/v1/completion", bytes.NewBuffer(reqBodyBytes))
 

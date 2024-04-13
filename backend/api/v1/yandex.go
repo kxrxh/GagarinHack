@@ -21,35 +21,50 @@ type YandexRequest struct {
 // maxTokens: The maximum number of tokens.
 // temperature: The temperature for the completion.
 // Returns a pointer to a YandexRequest.
-func getYandexRequestBody(folderId string, maxTokens string, temperature float32) *YandexRequest {
+func getYandexRequestBody(folderId string, maxTokens string, temperature float32, extraContext []struct {
+	Role string
+	Text string
+}) *YandexRequest {
 	if folderId == "" || maxTokens == "" || temperature < 0 {
 		return nil
+	}
+
+	messages := []struct {
+		Role string `json:"role"`
+		Text string `json:"text"`
+	}{
+		{
+			Role: "system",
+			Text: SYSTEM_PROMPT,
+		},
+		{
+			Role: "user",
+			Text: USER_PROMPT,
+		},
+	}
+
+	for _, ctx := range extraContext {
+		messages = append(messages, struct {
+			Role string `json:"role"`
+			Text string `json:"text"`
+		}{
+			Role: ctx.Role,
+			Text: ctx.Text,
+		})
 	}
 
 	return &YandexRequest{
 		ModelURI: fmt.Sprintf("gpt://%s/yandexgpt-lite", folderId),
 		CompletionOptions: struct {
-			Stream      bool    "json:\"stream\""
-			Temperature float32 "json:\"temperature\""
-			MaxTokens   string  "json:\"maxTokens\""
+			Stream      bool    `json:"stream"`
+			Temperature float32 `json:"temperature"`
+			MaxTokens   string  `json:"maxTokens"`
 		}{
 			Stream:      false,
 			Temperature: temperature,
 			MaxTokens:   maxTokens,
 		},
-		Messages: []struct {
-			Role string "json:\"role\""
-			Text string "json:\"text\""
-		}{
-			{
-				Role: "system",
-				Text: SYSTEM_PROMPT,
-			},
-			{
-				Role: "user",
-				Text: USER_PROMPT,
-			},
-		},
+		Messages: messages,
 	}
 }
 

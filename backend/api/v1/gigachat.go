@@ -59,10 +59,38 @@ type gigachatUsage struct {
 // - maxTokens: an integer representing the maximum tokens allowed.
 // - temperature: a float32 value for controlling the randomness of the generation.
 // Returns a pointer to a gigachatRequest struct.
-func getGigachatRequestBody(maxTokens int, temperature float32) *gigachatRequest {
+func getGigachatRequestBody(maxTokens int, temperature float32, extraContext []struct {
+	Role    string
+	Content string
+}) *gigachatRequest {
 	if maxTokens == 0 || temperature < 0 {
 		return nil
 	}
+
+	messages := []struct {
+		Role    string `json:"role"`
+		Content string `json:"content"`
+	}{
+		{
+			Role:    "system",
+			Content: SYSTEM_PROMPT,
+		},
+		{
+			Role:    "user",
+			Content: USER_PROMPT,
+		},
+	}
+
+	for _, ctx := range extraContext {
+		messages = append(messages, struct {
+			Role    string `json:"role"`
+			Content string `json:"content"`
+		}{
+			Role:    ctx.Role,
+			Content: ctx.Content,
+		})
+	}
+
 	return &gigachatRequest{
 		Model:             "GigaChat:latest",
 		Temperature:       temperature,
@@ -72,21 +100,10 @@ func getGigachatRequestBody(maxTokens int, temperature float32) *gigachatRequest
 		RepetitionPenalty: 1.07,
 		Stream:            false,
 		UpdateInterval:    0,
-		Messages: []struct {
-			Role    string `json:"role"`
-			Content string `json:"content"`
-		}{
-			{
-				Role:    "system",
-				Content: SYSTEM_PROMPT,
-			},
-			{
-				Role:    "user",
-				Content: USER_PROMPT,
-			},
-		},
+		Messages:          messages,
 	}
 }
+
 func getAccessToken(c *fiber.Ctx) error {
 	scope := viper.GetString("gigachat.scope")
 	authUrl := viper.GetString("gigachat.authUrl")
