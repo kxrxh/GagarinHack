@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+
+  ###########
+  # Backend #
+  ###########
+  backend-api:
+    build: ./backend
+    container_name: backend-api
+    ports:
+      - '3033:3033'
+    environment:
+      - PRODUCTION=false
+      - PORT=3033
+    restart: on-failure:5
+    depends_on:
+      crdb:
+        condition: service_healthy
+  # nginx:
+  #   container_name: nginx
+  #   build: ./webapp
+  #   restart: on-failure:5
+  #   ports:
+  #     - '443:443'
+  #   depends_on:
+  #     - backend-api
+  # bot:
+  #  container_name: bot
+  #  build: ./bot
+  #  restart: on-failure:5
+
+  ###########
+  # Metrics #
+  ###########
+  prometheus:
+    build: './monitoring/prometheus'
+    container_name: 'prometheus'
+    ports:
+      - '9090:9090'
+  grafana:
+    build: './monitoring/grafana'
+    container_name: 'grafana'
+    ports:
+      - '3000:3000'
+
+  ############
+  # STORAGES #
+  ############
+  crdb:
+   container_name: crdb
+   image: cockroachdb/cockroach:latest
+   ports:
+     - "26257:26257"
+     - "8080:8080"
+   command: start-single-node --insecure
+   healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+   volumes:
+     - "./persistence/cockroach/:/cockroach/cockroach-data"
+
+  golang-kvdb:
+    build: ./kvdb
+    ports:
+      - "5173:5173"
+    environment:
+      DB_FILE: data/db.json
+      DB_PORT: 5173
+    volumes:
+      - kvdb_volume:/app/data
+
+volumes:
+  kvdb_volume:
