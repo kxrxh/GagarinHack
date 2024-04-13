@@ -11,7 +11,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
         <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
             <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                 <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                    <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center">Код памяти</h1>
+                    <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center">Страница памяти</h1>
                     <div v-if="stage == STAGE.SETUP" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
                       <div>
                         <UILabel>
@@ -61,16 +61,16 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                         Продолжить
                       </UIButton>
                       <p class="text-sm font-light text-gray-500 dark:text-gray-400 text-center !mt-4">
-                          <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="skip">
-                            Пропустить вопрос
-                          </a><br><br>
+                          <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="skip" v-if="!unskip.includes(index)">
+                            Пропустить вопрос<br><br>
+                          </a>
                           <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="back" v-if="index != 0">
                             Вернуться на предыдущий
                           </a>
                       </p>
                     </div>
                     <div v-if="stage == STAGE.CREATION" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
-                      Создание кода памяти...<br>
+                      Создание страницы памяти...<br>
                       <span class="loader"></span>
                     </div>
                     <div v-if="stage == STAGE.VIEW" class="space-y-2 md:space-y-4 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
@@ -87,20 +87,20 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                         type="text"
                         class="animate animate-fade animate-ease-in-out animate-duration-350 animate-once"
                         v-model="results[0]">
-                        Предложенный код памяти №1:
+                        Предложенная страница памяти №1:
                       </UILabeledInput>
                       <UIButton classExtension="w-full py-2.5" @click="finish">
-                        Принять первый код памяти
+                        Принять первую страницу памяти
                       </UIButton>
                       <UILabeledInput
                         :textarea="true"
                         type="text"
                         class="animate animate-fade animate-ease-in-out animate-duration-350 animate-once"
                         v-model="results[1]">
-                        Предложенный код памяти №2:
+                        Предложенная страница памяти №2:
                       </UILabeledInput>
                       <UIButton classExtension="w-full py-2.5" @click="finish">
-                        Принять второй код памяти
+                        Принять вторую страницу памяти
                       </UIButton>
                     </div>
                 </div>
@@ -128,7 +128,8 @@ export default {
         questions: ["Как его зовут?", "В каком городе он родился?", "Что вас в нем радовало?"],
         answers: ["", "", ""],
         results: ["", ""],
-        stage: STAGE.SETUP
+        stage: STAGE.VIEW,
+        unskip: [0]
       }
     },
     methods: {
