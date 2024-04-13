@@ -2,11 +2,12 @@ package v1
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
@@ -74,18 +75,39 @@ func yandexCompletion(c *fiber.Ctx) error {
 	zap.S().Debugln(fmt.Sprintf("request body: %v", req))
 	req.Header.Set("Authorization", fmt.Sprintf("Api-Key %s", apiKey))
 	req.Header.Set("Content-Type", "application/json")
-
 	client := &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			Dial: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
-	resp, err := client.Do(req)
-	if err != nil {
+
+	var resp *http.Response
+	var err error
+	const maxRetries = 5
+
+	for retry := 0; retry < maxRetries; retry++ {
+		resp, err = client.Do(req)
+		if err == nil {
+			break
+		}
+
+		// Check if the error is a timeout error
+		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+			// Retry the request
+			continue
+		}
+
+		// If it's not a timeout error, return the error
 		return err
 	}
-	defer resp.Body.Close()
 
+	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 	return c.SendString(string(body))
 }
