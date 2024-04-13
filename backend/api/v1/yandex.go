@@ -71,6 +71,7 @@ func yandexCompletion(c *fiber.Ctx) error {
 
 	reqBodyBytes, _ := json.Marshal(reqBody)
 	req, _ := http.NewRequest("POST", "https://llm.api.cloud.yandex.net/foundationModels/v1/completion", bytes.NewBuffer(reqBodyBytes))
+	zap.S().Debugln(fmt.Sprintf("request body: %v", req))
 	req.Header.Set("Authorization", fmt.Sprintf("Api-Key %s", apiKey))
 	req.Header.Set("Content-Type", "application/json")
 
