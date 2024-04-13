@@ -17,9 +17,9 @@ const SYSTEM_PROMT = "Вы бот, созданный для помощи пол
 type YandexRequest struct {
 	ModelURI          string `json:"modelUri"`
 	CompletionOptions struct {
-		Stream      bool   `json:"stream"`
-		Temperature float32    `json:"temperature"`
-		MaxTokens   string `json:"maxTokens"`
+		Stream      bool    `json:"stream"`
+		Temperature float32 `json:"temperature"`
+		MaxTokens   string  `json:"maxTokens"`
 	} `json:"completionOptions"`
 	Messages []struct {
 		Role string `json:"role"`
@@ -45,11 +45,11 @@ func yandexCompletion(c *fiber.Ctx) error {
 	}
 
 	reqBody := YandexRequest{
-		ModelURI: "gpt://" + folderId + "/yandexgpt-pro",
+		ModelURI: "gpt://" + folderId + "/yandexgpt-lite",
 		CompletionOptions: struct {
-			Stream      bool   "json:\"stream\""
-			Temperature float32    "json:\"temperature\""
-			MaxTokens   string "json:\"maxTokens\""
+			Stream      bool    "json:\"stream\""
+			Temperature float32 "json:\"temperature\""
+			MaxTokens   string  "json:\"maxTokens\""
 		}{
 			Stream:      false,
 			Temperature: 0.25,
@@ -61,12 +61,10 @@ func yandexCompletion(c *fiber.Ctx) error {
 		}{
 			{
 				Role: "system",
-				// TODO: replace with actual system message
 				Text: SYSTEM_PROMT,
 			},
 			{
 				Role: "user",
-				// TODO: replace with actual user message
 				Text: requestBody.RequestMessage,
 			},
 		},
