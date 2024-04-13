@@ -40,7 +40,6 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
@@ -50,7 +49,6 @@ require (
 
 require (
 	github.com/ansrivas/fiberprometheus/v2 v2.6.1
-	github.com/go-resty/resty/v2 v2.12.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/spf13/viper v1.18.2

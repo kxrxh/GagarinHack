@@ -1,21 +1,18 @@
 package v1
 
 import (
-	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
-type completionRequest struct {
+type gigachatRequest struct {
 	Model             string  `json:"model"`
 	Temperature       float64 `json:"temperature"`
 	TopP              float64 `json:"top_p"`
@@ -28,6 +25,32 @@ type completionRequest struct {
 		Role    string `json:"role"`
 		Content string `json:"content"`
 	} `json:"messages"`
+}
+
+type gigachatResponse struct {
+	Choices []gigachatChoice `json:"choices"`
+	Created int64            `json:"created"`
+	Model   string           `json:"model"`
+	Object  string           `json:"object"`
+	Usage   gigachatUsage    `json:"usage"`
+}
+
+type gigachatChoice struct {
+	Message      gigachatMessage `json:"message"`
+	Index        int             `json:"index"`
+	FinishReason string          `json:"finish_reason"`
+}
+
+type gigachatMessage struct {
+	Content string `json:"content"`
+	Role    string `json:"role"`
+}
+
+type gigachatUsage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
+	SystemTokens     int `json:"system_tokens"`
 }
 
 func getAccessToken(c *fiber.Ctx) error {
@@ -62,70 +85,4 @@ func getAccessToken(c *fiber.Ctx) error {
 
 	c.Locals("sber_access_token", accessTokenResponse.AccessToken)
 	return c.Next()
-}
-
-func gigachatCompletion(c *fiber.Ctx) error {
-	accessToken := c.Locals("sber_access_token").(string)
-
-	baseUrl := viper.GetString("gigachat.baseUrl")
-
-	var requestBody RequestBody
-
-	if err := c.BodyParser(&requestBody); err != nil {
-		zap.S().Debugln(err)
-		return c.Status(fiber.StatusBadRequest).JSON(err)
-	}
-
-	if requestBody.RequestMessage == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "request_message query param is required",
-		})
-	}
-
-	reqBody := completionRequest{
-		Model:             "GigaChat:latest",
-		Temperature:       0.6,
-		TopP:              0.47,
-		N:                 1,
-		MaxTokens:         1024,
-		RepetitionPenalty: 1.07,
-		Stream:            false,
-		UpdateInterval:    0,
-		Messages: []struct {
-			Role    string `json:"role"`
-			Content string `json:"content"`
-		}{
-			{
-				Role:    "system",
-				Content: SYSTEM_PROMT,
-			},
-			{
-				Role:    "user",
-				Content: requestBody.RequestMessage,
-			},
-		},
-	}
-
-	reqBodyBytes, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", baseUrl), bytes.NewBuffer(reqBodyBytes))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
-	req.Header.Set("X-Request-ID", "79e41a5f-f180-4c7a-b2d9-393086ae20a1")
-	req.Header.Set("X-Session-ID", "b6874da0-bf06-410b-a150-fd5f9164a0b2")
-	req.Header.Set("X-Client-ID", "b6874da0-bf06-410b-a150-fd5f9164a0b2")
-
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-	return c.SendString(string(body))
 }
