@@ -2,6 +2,7 @@ package v1
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -73,7 +74,11 @@ func yandexCompletion(c *fiber.Ctx) error {
 	req.Header.Set("Authorization", fmt.Sprintf("Api-Key %s", apiKey))
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

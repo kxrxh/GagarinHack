@@ -15,7 +15,7 @@ ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN go build -ldflags="-s -w" -o main .
 
 FROM alpine:latest
-RUN apk --no-cache add ca-certificates
+# RUN apk --no-cache add ca-certificates
 
 COPY --from=builder ["/build/main", "/"]
 COPY --from=builder ["/build/app.json", "/"]
