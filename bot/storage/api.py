@@ -13,11 +13,11 @@ class StorageResponse:
 
 class KeyValueStorage:
     # Initialize the base URL for the key-value storage from the environment variable
-    base_url = os.environ.get('STORAGE_URL')
-    if not base_url:
+    __base_url = os.environ.get('STORAGE_URL')
+    if not __base_url:
         raise RuntimeError('STORAGE_URL environment variable not set')
-    if not base_url.endswith('/'):
-        base_url += '/'
+    if not __base_url.endswith('/'):
+        __base_url += '/'
 
     @staticmethod
     def get(key: str) -> StorageResponse:
@@ -33,7 +33,7 @@ class KeyValueStorage:
         # Send a GET request to retrieve the value associated with the key
         if not key:
             raise ValueError("Key cannot be empty")
-        response = requests.get(KeyValueStorage.base_url + key)
+        response = requests.get(KeyValueStorage.__base_url + key)
         if response.status_code == 200:
             data = response.json()
             return StorageResponse(success=True, value=data.get('value', None))
@@ -54,7 +54,7 @@ class KeyValueStorage:
             StorageResponse: A tuple indicating whether the operation was successful and a message describing the result.
         """
         # Send a POST request to store the key-value pair
-        response = requests.post(KeyValueStorage.base_url, json={
+        response = requests.post(KeyValueStorage.__base_url, json={
                                  "key": str(key), "value": value})
         if response.status_code == 200:
             return StorageResponse(success=True, message="Key-value pair stored successfully")
@@ -74,7 +74,7 @@ class KeyValueStorage:
             StorageResponse: A tuple indicating whether the operation was successful and a message describing the result.
         """
         # Send a DELETE request to delete the key-value pair
-        response = requests.delete(KeyValueStorage.base_url + key)
+        response = requests.delete(KeyValueStorage.__base_url + key)
         if response.status_code == 200:
             return StorageResponse(success=True, message="Key-value pair deleted successfully")
         else:
@@ -92,7 +92,7 @@ class KeyValueStorage:
         """
 
         response = requests.delete(
-            f"{KeyValueStorage.base_url}prefix/{prefix}")
+            f"{KeyValueStorage.__base_url}prefix/{prefix}")
         if response.status_code == 200:
             return StorageResponse(success=True, message="Key-value pairs deleted successfully")
         else:

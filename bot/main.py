@@ -1,6 +1,7 @@
 from enum import Enum
 import os
 import re
+from backend.api import BackendApi
 from telebot.async_telebot import AsyncTeleBot
 import telebot
 
@@ -23,7 +24,7 @@ class State(str, Enum):
 
 
 def create_mode_keyboard():
-    web_app_link = telebot.types.WebAppInfo("https://cataas.com/cat")
+    web_app_link = telebot.types.WebAppInfo("https://themixadev.github.io/GagarinHackView/")
 
     keyboard = telebot.types.InlineKeyboardMarkup()
     web_app_link = telebot.types.InlineKeyboardButton(
@@ -121,7 +122,9 @@ async def handle_death_date(message):
     KeyValueStorage.set(message.chat.id, State.EPITAPH.value)
     KeyValueStorage.set(f"{message.chat.id}.death_date", message.text)
     await bot.send_message(message.chat.id, "Дата успешно установлена. Теперь переходим к генерации эпитафии. Пожалуйста, подождите немного, пока я создам для вас уникальный текст, который вы сможете редактировать, если захотите.")
-
+    name = KeyValueStorage.get(f"{message.chat.id}.name").value
+    res = BackendApi.generate_epitaph_yandex(name, birth_date, date)
+    await bot.send_message(message.chat.id, f"Эпитафия:\n{res}")
 
 if __name__ == "__main__":
     import asyncio
