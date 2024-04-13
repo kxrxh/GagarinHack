@@ -7,7 +7,7 @@ type YandexRequest struct {
 	CompletionOptions struct {
 		Stream      bool    `json:"stream"`
 		Temperature float32 `json:"temperature"`
-		MaxTokens   string  `json:"maxTokens"`
+		MaxTokens   uint    `json:"maxTokens"`
 	} `json:"completionOptions"`
 	Messages []struct {
 		Role string `json:"role"`
@@ -21,11 +21,11 @@ type YandexRequest struct {
 // maxTokens: The maximum number of tokens.
 // temperature: The temperature for the completion.
 // Returns a pointer to a YandexRequest.
-func getYandexRequestBody(folderId string, maxTokens string, temperature float32, extraContext []struct {
+func getYandexRequestBody(folderId string, maxTokens uint, temperature float32, extraContext []struct {
 	Role string
 	Text string
 }) *YandexRequest {
-	if folderId == "" || maxTokens == "" || temperature < 0 {
+	if folderId == "" || maxTokens == 0 || temperature < 0 {
 		return nil
 	}
 
@@ -58,7 +58,7 @@ func getYandexRequestBody(folderId string, maxTokens string, temperature float32
 		CompletionOptions: struct {
 			Stream      bool    `json:"stream"`
 			Temperature float32 `json:"temperature"`
-			MaxTokens   string  `json:"maxTokens"`
+			MaxTokens   uint    `json:"maxTokens"`
 		}{
 			Stream:      false,
 			Temperature: temperature,

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -38,13 +39,13 @@ func yandexStory(c *fiber.Ctx) error {
 
 	if requestBody.TypeOfStory == "epitaph" {
 		USER_PROMPT = USER_PROMPT_EPITAPH
-		USER_PROMPT += "\nС именем: " + requestBody.HumanInfo.Name + "\n" + "Дата рождения: " + requestBody.HumanInfo.DateOfBirth + "\n" + "Дата смерти: " + requestBody.HumanInfo.DateOfDeath + "\n" + "Пол человека: " + requestBody.HumanInfo.Sex
+		USER_PROMPT += "\nС именем: " + requestBody.HumanInfo.Name + "\n" + "Дата рождения: " + requestBody.HumanInfo.DateOfBirth + "\n" + "Дата смерти: " + requestBody.HumanInfo.DateOfDeath + "\n" + "Пол человека: " + requestBody.HumanInfo.Sex + "" + "\n"
 		for key, value := range requestBody.HumanInfo.Questions {
 			USER_PROMPT += "\nВопрос: " + key + " Ответ: " + "" + value
 		}
 	} else if requestBody.TypeOfStory == "biography" {
 		USER_PROMPT = USER_PROMPT_BIOGRAPHY
-		USER_PROMPT += "\nИмя: " + requestBody.HumanInfo.Name + "\n" + "Пол: " + requestBody.HumanInfo.Sex + "\n" + "Дата рождения: " + requestBody.HumanInfo.DateOfBirth + "\n" + "Пол человека: " + requestBody.HumanInfo.Sex
+		USER_PROMPT += "\nИмя: " + requestBody.HumanInfo.Name + "\n" + "Пол: " + requestBody.HumanInfo.Sex + "\n" + "Дата рождения: " + requestBody.HumanInfo.DateOfBirth + "\n" + "Пол человека: " + requestBody.HumanInfo.Sex + "" + "\n" + ""
 		for key, value := range requestBody.HumanInfo.Questions {
 			USER_PROMPT += "\nВопрос: " + key + " Ответ: " + "" + value
 		}
@@ -55,7 +56,7 @@ func yandexStory(c *fiber.Ctx) error {
 		Text string
 	}{}
 
-	reqBodyBytes, _ := json.Marshal(getYandexRequestBody(folderId, "1024", 0.1, extraContext))
+	reqBodyBytes, _ := json.Marshal(getYandexRequestBody(folderId, 1024, 0.1, extraContext))
 
 	req, _ := http.NewRequest("POST", "https://llm.api.cloud.yandex.net/foundationModels/v1/completion", bytes.NewBuffer(reqBodyBytes))
 
@@ -89,7 +90,24 @@ func yandexStory(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"response": data.Result.Alternatives[0].Message.Text,
-	})
+	text := data.Result.Alternatives[0].Message.Text
+
+	// Check if the length of the string is greater than 300
+	if len(text) > 300 && requestBody.TypeOfStory == "epitaph" {
+		trimmedText := text[:300]
+
+		lastIndex := strings.LastIndexAny(trimmedText, ".!?…")
+
+		if lastIndex != -1 {
+			trimmedText = trimmedText[:lastIndex+1]
+		}
+		return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+			"response": trimmedText,
+		})
+	} else {
+		return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+			"response": text,
+		})
+	}
+
 }

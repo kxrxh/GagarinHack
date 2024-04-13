@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
@@ -83,7 +84,21 @@ func gigachatStory(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"response": data.Choices[0].Message.Content,
-	})
+	text := data.Choices[0].Message.Content
+	if len(text) > 300 && requestBody.TypeOfStory == "epitaph" {
+		trimmedText := text[:300]
+
+		lastIndex := strings.LastIndexAny(trimmedText, ".!?…")
+
+		if lastIndex != -1 {
+			trimmedText = trimmedText[:lastIndex+1]
+		}
+		return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+			"response": trimmedText,
+		})
+	} else {
+		return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+			"response": text,
+		})
+	}
 }
