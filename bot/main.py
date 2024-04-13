@@ -19,7 +19,7 @@ class State(str, Enum):
     NAME = "name"
     BIRTH_DATE = "birth_date"
     DEATH_DATE = "death_date"
-    EPITAPHIA = "epitaphia"
+    EPITAPH = "epitaph"
 
 
 def create_mode_keyboard():
@@ -66,6 +66,7 @@ async def handle_random_message(message):
 
 @bot.callback_query_handler(func=lambda call: call.data == "start")
 async def start_callback(call):
+    KeyValueStorage.delete_prefix(call.message.chat.id)
     KeyValueStorage.set(call.message.chat.id, State.NAME.value)
     await bot.send_message(call.message.chat.id, "Отлично, давайте же приступим к заполнению страницы памяти! Пожалуйста, укажите полное имя человека (ФИО):")
 
@@ -98,7 +99,7 @@ async def handle_birth_date(message):
 @bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.DEATH_DATE.value)
 async def handle_death_date(message):
     date = message.text.replace('-', '.').replace(' ', '.').replace('/', '.')
-    
+
     is_date_valid = Validator.validate_date(date)
     if not is_date_valid:
         await bot.send_message(message.chat.id, "Дата смерти введена неверно. Пожалуйста, введите дату смерти в формате 'ДД.ММ.ГГГГ' (например, 31.12.2020).")
@@ -112,12 +113,12 @@ async def handle_death_date(message):
         KeyValueStorage.set(message.chat.id, State.START.value)
         await bot.send_message(message.chat.id, "Произошла ошибка на стороне сервера 😿. Попробуйте начать заполнение ещё раз...", reply_markup=keyboard)
         return
-    
+
     if not is_date_after(date, birth_date):
         await bot.send_message(message.chat.id, "Дата смерти не может быть раньше даты рождения. Пожалуйста, введите правильную дату.", reply_markup=None)
         return
-    
-    KeyValueStorage.set(message.chat.id, State.EPITAPHIA.value)
+
+    KeyValueStorage.set(message.chat.id, State.EPITAPH.value)
     KeyValueStorage.set(f"{message.chat.id}.death_date", message.text)
     await bot.send_message(message.chat.id, "Дата успешно установлена. Теперь переходим к генерации эпитафии. Пожалуйста, подождите немного, пока я создам для вас уникальный текст, который вы сможете редактировать, если захотите.")
 

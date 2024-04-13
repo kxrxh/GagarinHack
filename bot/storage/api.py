@@ -80,8 +80,24 @@ class KeyValueStorage:
         else:
             logging.error("error: " + response.text)
             return StorageResponse(success=False, message="error: " + response.text)
-        
 
+    @staticmethod
+    def delete_prefix(prefix: str) -> StorageResponse:
+        """
+        Delete all key-value pairs whose keys start with the given prefix from the key-value storage.
+                Args:
+                prefix (str): The prefix to delete.
+        Returns:
+        StorageResponse: A tuple indicating whether the operation was successful and a message describing the result.
+        """
+
+        response = requests.delete(
+            f"{KeyValueStorage.base_url}prefix/{prefix}")
+        if response.status_code == 200:
+            return StorageResponse(success=True, message="Key-value pairs deleted successfully")
+        else:
+            logging.error("error: " + response.text)
+            return StorageResponse(success=False, message="error: " + response.text)
 
 
 if __name__ == '__main__':
