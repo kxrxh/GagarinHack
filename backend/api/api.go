@@ -4,9 +4,10 @@ import (
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"go.uber.org/zap"
 
-	"github.com/gagarin/backend/api/auth"
+	// "github.com/gagarin/backend/api/auth"
 	v1 "github.com/gagarin/backend/api/v1"
 )
 
@@ -45,15 +46,17 @@ func prometheusMiddleware(app *fiber.App) *fiberprometheus.FiberPrometheus {
 
 // ConfigureApp sets up the routes for the API
 func (api *Api) ConfigureApp() *Api {
-	apiGroup := api.app.Group("/api")
 	api.app.Get("/", func(c *fiber.Ctx) error {
 		zap.S().Debugln("GET /api")
 		return c.JSON(fiber.Map{
-			"message": "Selectel Hack API",
+			"message": "Gagarin Hack API",
 		})
 	})
 
-	auth.SetupAuth(&apiGroup)
+	apiGroup := api.app.Group("/api")
+
+	apiGroup.Use(healthcheck.New())
+	// auth.SetupAuth(&apiGroup)
 	v1.SetupRoutesV1(&apiGroup)
 	return api
 }
