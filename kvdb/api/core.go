@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/logger"
 )
 
 func InitApp() *fiber.App {
@@ -13,6 +14,8 @@ func InitApp() *fiber.App {
 		AllowCredentials: true,
 		AllowMethods:     "GET,POST,DELETE",
 	}))
+
+	app.Use(logger.New())
 
 	return app
 }

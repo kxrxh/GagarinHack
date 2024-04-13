@@ -1,6 +1,14 @@
+from dataclasses import dataclass, field
+import logging
 import os
-from typing import Tuple
 import requests
+
+
+@dataclass
+class StorageResponse:
+    success: bool = field(default_factory=bool)
+    value: str = field(default_factory=str)
+    message: str = field(default_factory=str)
 
 
 class KeyValueStorage:
@@ -12,7 +20,7 @@ class KeyValueStorage:
         base_url += '/'
 
     @staticmethod
-    def get(key: str) -> Tuple[bool, str]:
+    def get(key: str) -> StorageResponse:
         """
         Retrieve the value associated with the given key from the key-value storage.
 
@@ -20,18 +28,21 @@ class KeyValueStorage:
             key (str): The key to retrieve the value for.
 
         Returns:
-            Tuple[bool, str]: A tuple indicating whether the operation was successful and the retrieved value (if successful).
+            StorageResponse: A tuple indicating whether the operation was successful and the retrieved value (if successful).
         """
         # Send a GET request to retrieve the value associated with the key
+        if not key:
+            raise ValueError("Key cannot be empty")
         response = requests.get(KeyValueStorage.base_url + key)
         if response.status_code == 200:
             data = response.json()
-            return (True, data.get('value', None))
+            return StorageResponse(success=True, value=data.get('value', None))
         else:
-            return (False, f"Error: {response.status_code}: {response.text}")
+            logging.error("error: " + response.text)
+            return StorageResponse(success=False, message="error: " + response.text)
 
     @staticmethod
-    def set(key: str, value: str) -> Tuple[bool, str]:
+    def set(key: str, value: str) -> StorageResponse:
         """
         Store the given key-value pair in the key-value storage.
 
@@ -40,18 +51,19 @@ class KeyValueStorage:
             value (str): The value associated with the key.
 
         Returns:
-            Tuple[bool, str]: A tuple indicating whether the operation was successful and a message describing the result.
+            StorageResponse: A tuple indicating whether the operation was successful and a message describing the result.
         """
         # Send a POST request to store the key-value pair
         response = requests.post(KeyValueStorage.base_url, json={
-                                 "key": key, "value": value})
+                                 "key": str(key), "value": value})
         if response.status_code == 200:
-            return (True, "Key-value pair stored successfully")
+            return StorageResponse(success=True, message="Key-value pair stored successfully")
         else:
-            return (False, f"Error: {response.status_code}: {response.text}")
+            logging.error("error: " + response.text)
+            return StorageResponse(success=False, message="error: " + response.text)
 
     @staticmethod
-    def delete(key: str) -> Tuple[bool, str]:
+    def delete(key: str) -> StorageResponse:
         """
         Delete the key-value pair associated with the given key from the key-value storage.
 
@@ -59,14 +71,15 @@ class KeyValueStorage:
             key (str): The key to delete.
 
         Returns:
-            Tuple[bool, str]: A tuple indicating whether the operation was successful and a message describing the result.
+            StorageResponse: A tuple indicating whether the operation was successful and a message describing the result.
         """
         # Send a DELETE request to delete the key-value pair
         response = requests.delete(KeyValueStorage.base_url + key)
         if response.status_code == 200:
-            return (True, "Key deleted successfully")
+            return StorageResponse(success=True, message="Key-value pair deleted successfully")
         else:
-            return (False, f"Error: {response.status_code}: {response.text}")
+            logging.error("error: " + response.text)
+            return StorageResponse(success=False, message="error: " + response.text)
 
 
 if __name__ == '__main__':
