@@ -84,7 +84,7 @@ func gigachatCompletion(c *fiber.Ctx) error {
 
 	reqBody := completionRequest{
 		Model:             "GigaChat:latest",
-		Temperature:       0.3,
+		Temperature:       0.6,
 		TopP:              0.47,
 		N:                 1,
 		MaxTokens:         1024,

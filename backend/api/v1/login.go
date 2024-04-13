@@ -48,10 +48,12 @@ func getApiAccessToken(c *fiber.Ctx) error {
 	err = json.NewDecoder(resp.Body).Decode(&accessTokenResponse)
 	if err != nil {
 		zap.S().Debugln(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"error": "Failed to get access token",
+		})
 	}
 
-	c.Locals("api_access_token", accessTokenResponse.AccessToken)
+	// c.Locals("api_access_token", accessTokenResponse.AccessToken)
 	// return c.Next()
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"access_token": accessTokenResponse.AccessToken,
