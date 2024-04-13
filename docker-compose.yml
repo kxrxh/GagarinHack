@@ -1,6 +1,14 @@
 version: '3.8'
 
 services:
+  python-bot:
+    build: ./bot
+    port: -"8080:8080"
+    environment:
+      - STORAGE_URL: golang-kvdb:5173
+      - TELEGRAM_API_KEY: 7193262302:AAFadZQ58TP9vGRSV4Gl0fj_GB9KAKQrTCU
+    depends_on:
+      - golang-kvdb
   golang-kvdb:
     build: ./kvdb
     ports:

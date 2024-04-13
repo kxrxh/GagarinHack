@@ -1,8 +1,10 @@
+import os
 import telebot
-from gpt.api import RequestCreator
-from utils.const import Constant
 
-bot = telebot.TeleBot(Constant.get_bot_key())
+KEY = os.getenv("TELEGRAM_API_KEY")
+if not KEY:
+    raise RuntimeError("No API key found")
+bot = telebot.TeleBot(KEY)
 
 
 def create_ask_mode_keyboard():
@@ -28,38 +30,6 @@ def start(message):
 def go_to_web_app(message):
     bot.send_message(
         message.chat.id, "Прекрасно! Рад, что вы решили остаться здесь! ")
-
-@bot.message_handler(func=lambda message: message.text == "Режим чат-бота")
-def go_to_web_app(message):
-    bot.send_message(
-        message.chat.id, "Прекрасно! Рад, что вы решили остаться здесь! ")
-
-
-@bot.message_handler(content_types=['text'])
-def get_text_message(msg):
-    body = {
-        "modelUri": "gpt://b1gpt2d1mrgpkitoo7k6/yandexgpt-pro",
-        "completionOptions": {
-            "stream": False,
-            "temperature": 0.25,
-            "maxTokens": "2000"
-        },
-        "messages": [
-            {
-                "role": "system",
-                "text": "Ты помошник MemoryCode."
-            },
-            {
-                "role": "user",
-                "text": msg.text
-            }
-        ]
-    }
-    loading = bot.send_message(msg.from_user.id, "Generating response...")
-    code, res = RequestCreator.create_yandex_request(
-        Constant.get_yandex_url(), body, Constant.get_ya_api_key()).send()
-    bot.edit_message_text(
-        f"{code}: {res['result']['alternatives'][0]['message']['text']}", message_id=loading.message_id, chat_id=msg.from_user.id)
 
 
 if __name__ == "__main__":
