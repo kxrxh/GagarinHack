@@ -33,6 +33,14 @@ class State(str, Enum):
     EPITAPH = "epitaph"
     BIOGRAPHY = "biography"
 
+    EDUCATION = "education"
+    WORK = "work"
+    PLACE_OF_BIRTH = "place_of_birth"
+    PLACE_OF_DEATH = "place_of_death"
+    KIDS = "kids"
+    CITIZENSHIP = "citizenship"
+    AWARDS = "awards"
+
     # Save result
     FINISHED = "finished"
 
@@ -43,9 +51,9 @@ def create_mode_keyboard():
 
     keyboard = telebot.types.InlineKeyboardMarkup()
     web_app_link = telebot.types.InlineKeyboardButton(
-        "📱 Режим веб-приложение", web_app=web_app_link)
+        "📱 Начать в режиме веб-приложение", web_app=web_app_link)
     start_button = telebot.types.InlineKeyboardButton(
-        "🚩 Начать заполнение", callback_data="start")
+        "🚩 Начать в простом режиме", callback_data="start")
     keyboard.add(web_app_link)
     keyboard.add(start_button)
     return keyboard
@@ -56,20 +64,14 @@ async def start(message):
     KeyValueStorage.set(message.chat.id, State.START.value)
     await bot.send_message(message.chat.id, 'Привет! Я - MemoryCode Бот, ваш помощник в заполнении страницы памяти. Моя задача - сделать процесс заполнения страницы памяти легким и приятным для вас. \
 Вам нужно будет предоставлять мне информацию по одному запросу за раз, и я помогу вам создать замечательные тексты для всех полей формы. \
-Готовы начать этот важный процесс вместе?\n\nТак же я могу работать в режиме веб-страницы. Для этого просто нажмите кнопку ниже 🙂',
+Готовы начать этот важный процесс вместе?\n\nТак же я могу работать в режиме веб-страницы (полная версия). Для этого просто нажмите кнопку ниже 🙂',
                            reply_markup=create_mode_keyboard())
 
 
 @bot.message_handler(func=lambda message: not KeyValueStorage.get(str(message.chat.id)).value)
 async def handle_message(message):
     await bot.send_message(
-        message.chat.id, "Выберите команду '/start' или '/mode', чтобы начать!")
-
-
-@bot.message_handler(func=lambda message: message.text == "Режим чат-бота" and KeyValueStorage.get(str(message.chat.id)).value == State.START.value)
-async def go_to_bot_mode(message):
-    KeyValueStorage.set(message.chat.id, State.BOT.value)
-    await bot.reply_to(message, 'Вы выбрали режим чат-бота. Если вы хотите сменить режим выберите команду: \'/mode\'', reply_markup=None)
+        message.chat.id, "Выберите команду '/start' или '/help', чтобы начать!")
 
 
 @bot.message_handler(func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.START.value)
@@ -171,9 +173,9 @@ async def handle_death_date(message):
 
     # ask youser for mode
     keyboard = telebot.types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(telebot.types.InlineKeyboardButton(
-        text="❓ Далее", callback_data=f"questions_{message.id}"), telebot.types.InlineKeyboardButton(
-        text="⏩ Генерация", callback_data=f"generate_{message.chat.id}"))
+    keyboard.add(
+        # telebot.types.InlineKeyboardButton(text="❓ Далее", callback_data=f"questions_{message.id}"),
+        telebot.types.InlineKeyboardButton(text="⏩ Генерация", callback_data=f"generate_{message.chat.id}"))
     await bot.send_message(message.chat.id,
                            "Поздравляю! Все основные поля уже заполнены.\n\nНажмите кнопку 'Далее', чтобы ответить ещё на пару дополнительных вопросов, чтобы я смог узнать побольше о вносимом человеке.\nЛибо нажмите кнопку 'Генерация', если вы хотите сразу перейти к созданию биографии и эпитафии.",
                            reply_markup=keyboard)
@@ -252,6 +254,9 @@ async def accept_epitaph(call: telebot.types.CallbackQuery):
     chat_id = call.message.chat.id
     await bot.edit_message_reply_markup(chat_id=chat_id, message_id=call.message.id, reply_markup=None)
     await bot.reply_to(text=f"{'Эпитафия' if call.data.split('_')[1] == State.EPITAPH.value else 'Биография'} была успешно создана!", message=call.message)
+    if call.data.split('_')[1] == State.EPITAPH.value:
+        KeyValueStorage.set(chat_id, State.EDUCATION.value)
+        await bot.send_message(chat_id=chat_id, text="Теперь мне нужна информация об образовании:")
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("edit_"))
@@ -265,17 +270,116 @@ async def edit(call: telebot.types.CallbackQuery):
     await bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.id, reply_markup=None)
     await bot.send_message(chat_id=call.message.chat.id, text="Пришли мне новым сообщением свою версию текста и я его сохраню!")
 
+
 @bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value in [State.EDIT_EPITAPH.value, State.EDIT_BIOGRAPHY.value])
 async def handle_edited_text(message: telebot.types.Message):
     if KeyValueStorage.get(str(message.from_user.id)).value == State.EDIT_EPITAPH.value:
         KeyValueStorage.set(f"{message.chat.id}.epitaph", message.text)
         await bot.send_message(chat_id=message.chat.id, text="Текст был успешно изменен!")
-        KeyValueStorage.set(str(message.from_user.id), State.BIOGRAPHY.value)
+        KeyValueStorage.set(str(message.from_user.id), State.EDUCATION.value)
+        await bot.send_message(chat_id=message.chat.id, text="Теперь мне нужна информация об образовании:")
 
     elif KeyValueStorage.get(str(message.from_user.id)).value == State.EDIT_BIOGRAPHY.value:
         KeyValueStorage.set(f"{message.chat.id}.biography", message.text)
         await bot.send_message(chat_id=message.chat.id, text="Текст был успешно изменен!")
-        
+
+
+@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.EDUCATION.value)
+async def handle_education(message):
+    # Store education information
+    KeyValueStorage.set(f"{message.chat.id}.education", message.text)
+    await bot.reply_to(message, "Отлично, я сохранил информацию об образовании!")
+
+    # Go to place of birth mode
+    KeyValueStorage.set(message.chat.id, State.PLACE_OF_BIRTH.value)
+    await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите место рождения:")
+
+
+@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.PLACE_OF_BIRTH.value)
+async def handle_place_of_birth(message):
+    # Store place of birth
+    KeyValueStorage.set(f"{message.chat.id}.place_of_birth", message.text)
+    await bot.reply_to(message, "Место рождения сохранено!")
+
+    # Go to place of death mode
+    KeyValueStorage.set(message.chat.id, State.PLACE_OF_DEATH.value)
+    await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите место смерти:")
+
+
+@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.PLACE_OF_DEATH.value)
+async def handle_place_of_death(message):
+    # Store place of death
+    KeyValueStorage.set(f"{message.chat.id}.place_of_death", message.text)
+    await bot.reply_to(message, "Место смерти сохранено!")
+
+    # Go to kids mode
+    KeyValueStorage.set(message.chat.id, State.KIDS.value)
+    await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите, были ли у этого человека дети:")
+
+
+@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.KIDS.value)
+async def handle_kids(message):
+    # Store kids information
+    KeyValueStorage.set(f"{message.chat.id}.kids", message.text)
+    await bot.reply_to(message, "Информация о детях сохранена!")
+
+    # Go to citizenship mode
+    KeyValueStorage.set(message.chat.id, State.CITIZENSHIP.value)
+    await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите гражданство этого человека:")
+
+
+@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.CITIZENSHIP.value)
+async def handle_citizenship(message):
+    # Store citizenship information
+    KeyValueStorage.set(f"{message.chat.id}.citizenship", message.text)
+    await bot.reply_to(message, "Информация о гражданстве сохранена!")
+
+    # Go to awards mode
+    KeyValueStorage.set(message.chat.id, State.AWARDS.value)
+    await bot.send_message(message.chat.id, "Наконец, пожалуйста, укажите, были ли у этого человека какие-либо награды или достижения:")
+
+
+@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.AWARDS.value)
+async def handle_awards(message):
+    # Store awards information
+    KeyValueStorage.set(f"{message.chat.id}.awards", message.text)
+    await bot.reply_to(message, "Информация о наградах и достижениях сохранена!")
+
+    KeyValueStorage.set(f"{message.chat.id}", State.WORK.value)
+    await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите, чем этот человек занимался (кем работал):")
+
+
+@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.WORK.value)
+async def handle_work(message):
+    KeyValueStorage.set(f"{message.chat.id}.work", message.text)
+    await bot.reply_to(message, "Информация о работе сохранена!")
+
+    KeyValueStorage.set(f"{message.chat.id}", State.BIOGRAPHY.value)
+    await bot.send_message(message.chat.id, "Поздравляю, вы успешно заполнили все необходимые поля! Теперь я попытаюсь написать биографию...")
+    name = KeyValueStorage.get(f"{message.chat.id}.name").value
+    sex = KeyValueStorage.get(f"{message.chat.id}.sex").value
+    education = KeyValueStorage.get(f"{message.chat.id}.education").value
+    place_of_birth = KeyValueStorage.get(
+        f"{message.chat.id}.place_of_birth").value
+    place_of_death = KeyValueStorage.get(
+        f"{message.chat.id}.place_of_death").value
+    birth_date = KeyValueStorage.get(f"{message.chat.id}.birth_date").value
+    death_date = KeyValueStorage.get(f"{message.chat.id}.death_date").value
+    kids = KeyValueStorage.get(f"{message.chat.id}.kids").value
+    awards = KeyValueStorage.get(f"{message.chat.id}.awards").value
+    citizenship = KeyValueStorage.get(f"{message.chat.id}.citizenship").value
+
+    person = GenerationRequest(name, sex, birth_date, death_date,
+                               {"Кем работал?": message.text, "Какое образование получил человек?": education, "Где родился?": place_of_birth, "Где умер?": place_of_death, "Были ли у этого человека дети?": kids, "Гражданство?": citizenship, "Были ли у этого человека какие-либо награды или достижения?": awards})
+    bio1 = GptAPI.generate_biography_gigachat(person, "youth", "Пустая биография")
+    await bot.send_message(message.chat.id, f"Молодось:\n{bio1}")
+    bio2 = GptAPI.generate_biography_gigachat(person, "middle_age", bio1)
+    await bot.send_message(message.chat.id, f"Средние года:\n{bio2}")
+    bio3 = GptAPI.generate_biography_gigachat(person, "old_age", bio2)
+    await bot.send_message(message.chat.id, f"Последние года:\n{bio3}")
+    
+
+
 if __name__ == "__main__":
     import asyncio
     asyncio.run(bot.polling())

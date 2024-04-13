@@ -23,27 +23,27 @@ class GptAPI:
 
     @staticmethod
     def generate_epitaph_yandex(req_body: GenerationRequest) -> str:
-        url = GptAPI.__BASE_URL + 'completion/yandex/story'
+        url = GptAPI.__BASE_URL + 'completion/yandex/epitaph'
         response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": "epitaph"})
         return response.json()['response']
 
     @staticmethod
     def generate_epitaph_gigachat(req_body: GenerationRequest) -> str:
-        url = GptAPI.__BASE_URL + 'completion/gigachat/story'
+        url = GptAPI.__BASE_URL + 'completion/gigachat/epitaph'
         response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": "epitaph"})
         return response.json()['response']
 
 
     @staticmethod
-    def generate_biography_yandex(req_body: GenerationRequest) -> str:
+    def generate_biography_yandex(req_body: GenerationRequest, type: str) -> str:
         url = GptAPI.__BASE_URL + 'completion/yandex/story'
-        response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": "biography"})
+        response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": type})
         return response.json()['response']
 
     @staticmethod
-    def generate_biography_gigachat(req_body: GenerationRequest) -> str:
-        url = GptAPI.__BASE_URL + 'completion/gigachat/story'
-        response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": "biography"})
+    def generate_biography_gigachat(req_body: GenerationRequest, type: str, prev: str) -> str:
+        url = GptAPI.__BASE_URL + 'completion/gigachat/biography'
+        response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": type, "previous": prev})
         return response.json()['response']
     
     @staticmethod
