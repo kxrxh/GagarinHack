@@ -14,14 +14,14 @@ services:
       - PRODUCTION=false
       - PORT=3033
     restart: on-failure:5
-  # nginx:
-  #   container_name: nginx
-  #   build: ./webapp
-  #   restart: on-failure:5
-  #   ports:
-  #     - '443:443'
-  #   depends_on:
-  #     - backend-api
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    restart: on-failure:5
+    ports:
+      - '443:443'
+    depends_on:
+      - backend-api
   # bot:
   #  container_name: bot
   #  build: ./bot
@@ -65,15 +65,15 @@ services:
   #     start_period: 5s
   #   restart: on-failure:3
 
-  golang-kvdb:
-    build: ./kvdb
-    ports:
-      - "5173:5173"
-    environment:
-      DB_FILE: data/db.json
-      DB_PORT: 5173
-    volumes:
-      - kvdb_volume:/app/data
+  # golang-kvdb:
+  #   build: ./kvdb
+  #   ports:
+  #     - "5173:5173"
+  #   environment:
+  #     DB_FILE: data/db.json
+  #     DB_PORT: 5173
+  #   volumes:
+  #     - kvdb_volume:/app/data
 
 volumes:
   kvdb_volume:
