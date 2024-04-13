@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -78,6 +79,6 @@ func yandexCompletion(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"response": data.Result.Alternatives[0].Message.Text,
+		"response": strings.ReplaceAll(data.Result.Alternatives[0].Message.Text, "\"", ""),
 	})
 }

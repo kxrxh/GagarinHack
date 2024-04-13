@@ -96,7 +96,7 @@ func yandexQuestions(c *fiber.Ctx) error {
 	var questions []string
 	for _, line := range strings.Split(data.Result.Alternatives[0].Message.Text, "\n") {
 		if questionRegex.MatchString(line) {
-			cleanLine := numberDotRegex.ReplaceAllString(line, "") // Remove the number and dot at the beginning
+			cleanLine := strings.ReplaceAll(numberDotRegex.ReplaceAllString(line, ""), "\"", "") // Remove the number and dot at the beginning
 			questions = append(questions, cleanLine)
 		}
 	}

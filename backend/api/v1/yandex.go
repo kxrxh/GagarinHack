@@ -1,6 +1,13 @@
 package v1
 
-import "fmt"
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"time"
+)
 
 type YandexRequest struct {
 	ModelURI          string `json:"modelUri"`
@@ -66,6 +73,41 @@ func getYandexRequestBody(folderId string, maxTokens uint, temperature float32, 
 		},
 		Messages: messages,
 	}
+}
+
+// yandexReq sends a POST request to the Yandex API and returns the response or an error.
+func yandexReq(apiKey string, reqBody []byte) (*yandexResponseData, error) {
+	req, err := http.NewRequest("POST", "https://llm.api.cloud.yandex.net/foundationModels/v1/completion", bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Api-Key %s", apiKey))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("Connection", "keep-alive")
+	req.Header.Set("User-Agent", "PostmanRuntime/7.37.0")
+
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var data yandexResponseData
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, err
+	}
+
+	return &data, nil
 }
 
 type yandexResult struct {

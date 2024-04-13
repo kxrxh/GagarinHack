@@ -18,7 +18,7 @@ import (
 //
 // It takes a Fiber context object as a parameter.
 // Returns an error.
-func gigachatStory(c *fiber.Ctx) error {
+func gigachatEpitaph(c *fiber.Ctx) error {
 	accessToken := c.Locals("sber_access_token").(string)
 
 	baseUrl := viper.GetString("gigachat.baseUrl")
@@ -30,24 +30,10 @@ func gigachatStory(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
-	if requestBody.TypeOfStory == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "type_of_story query param is required",
-		})
-	}
-
-	if requestBody.TypeOfStory == "epitaph" {
-		USER_PROMPT = USER_PROMPT_EPITAPH
-		USER_PROMPT += "\nС именем: " + requestBody.HumanInfo.Name + "\n" + "Дата рождения: " + requestBody.HumanInfo.DateOfBirth + "\n" + "Дата смерти: " + requestBody.HumanInfo.DateOfDeath + "\n" + "Пол человека: " + requestBody.HumanInfo.Sex
-		for key, value := range requestBody.HumanInfo.Questions {
-			USER_PROMPT += "\nВопрос: " + key + " Ответ: " + "" + value
-		}
-	} else if requestBody.TypeOfStory == "biography" {
-		USER_PROMPT = USER_PROMPT_BIOGRAPHY
-		USER_PROMPT += "\nИмя: " + requestBody.HumanInfo.Name + "\n" + "Пол: " + requestBody.HumanInfo.Sex + "\n" + "Дата рождения: " + requestBody.HumanInfo.DateOfBirth + "\n" + "Пол человека: " + requestBody.HumanInfo.Sex
-		for key, value := range requestBody.HumanInfo.Questions {
-			USER_PROMPT += "\nВопрос: " + key + " Ответ: " + "" + value
-		}
+	USER_PROMPT = USER_PROMPT_EPITAPH
+	USER_PROMPT += "\nС именем: " + requestBody.HumanInfo.Name + "\n" + "Дата рождения: " + requestBody.HumanInfo.DateOfBirth + "\n" + "Дата смерти: " + requestBody.HumanInfo.DateOfDeath + "\n" + "Пол человека: " + requestBody.HumanInfo.Sex
+	for key, value := range requestBody.HumanInfo.Questions {
+		USER_PROMPT += "\nВопрос: " + key + " Ответ: " + "" + value
 	}
 
 	extraContext := []struct {
@@ -85,7 +71,7 @@ func gigachatStory(c *fiber.Ctx) error {
 	}
 
 	text := data.Choices[0].Message.Content
-	if len(text) > 300 && requestBody.TypeOfStory == "epitaph" {
+	if len(text) > 300 {
 		trimmedText := text[:300]
 
 		lastIndex := strings.LastIndexAny(trimmedText, ".!?…")
@@ -94,11 +80,11 @@ func gigachatStory(c *fiber.Ctx) error {
 			trimmedText = trimmedText[:lastIndex+1]
 		}
 		return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-			"response": trimmedText,
+			"response": strings.ReplaceAll(trimmedText, "\"", ""),
 		})
 	} else {
 		return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-			"response": text,
+			"response": strings.ReplaceAll(text, "\"", ""),
 		})
 	}
 }

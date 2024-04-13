@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
@@ -70,6 +71,6 @@ func gigachatCompletion(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"response": data.Choices[0].Message.Content,
+		"response": strings.ReplaceAll(data.Choices[0].Message.Content, "\"", ""),
 	})
 }
