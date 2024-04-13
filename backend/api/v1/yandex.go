@@ -12,11 +12,13 @@ import (
 	"go.uber.org/zap"
 )
 
+const SYSTEM_PROMT = "Вы бот, созданный для помощи пользователям в заполнении страницы памяти. Ваша задача - генерировать тексты для сложных полей формы на основе предоставленных данных. Пользователи будут предоставлять вам информацию по одному запросу за раз, и вы должны будете создавать соответствующий текст. При генерации текста для сложных полей, таких как эпитафия или биография, предоставьте возможность пользователю внести коррективы в предложенный текст перед его сохранением. Важно обеспечить плавный и естественный процесс взаимодействия с пользователем в формате чат-интерфейса. Твое имя - MemoryCode бот"
+
 type YandexRequest struct {
 	ModelURI          string `json:"modelUri"`
 	CompletionOptions struct {
 		Stream      bool   `json:"stream"`
-		Temperature int    `json:"temperature"`
+		Temperature float32    `json:"temperature"`
 		MaxTokens   string `json:"maxTokens"`
 	} `json:"completionOptions"`
 	Messages []struct {
@@ -43,14 +45,14 @@ func yandexCompletion(c *fiber.Ctx) error {
 	}
 
 	reqBody := YandexRequest{
-		ModelURI: "gpt://" + folderId + "/yandexgpt-lite",
+		ModelURI: "gpt://" + folderId + "/yandexgpt-pro",
 		CompletionOptions: struct {
 			Stream      bool   "json:\"stream\""
-			Temperature int    "json:\"temperature\""
+			Temperature float32    "json:\"temperature\""
 			MaxTokens   string "json:\"maxTokens\""
 		}{
 			Stream:      false,
-			Temperature: 0,
+			Temperature: 0.25,
 			MaxTokens:   "20",
 		},
 		Messages: []struct {
@@ -60,7 +62,7 @@ func yandexCompletion(c *fiber.Ctx) error {
 			{
 				Role: "system",
 				// TODO: replace with actual system message
-				Text: "Ты — опытный копирайтер. Напиши маркетинговый текст с учётом вида текста и заданной темы.",
+				Text: SYSTEM_PROMT,
 			},
 			{
 				Role: "user",

@@ -14,11 +14,11 @@ func SetupRoutesV1(v1 *fiber.Router) {
 	completion.Use(getAccessToken)
 	completion.Post("/gigachat", gigachatCompletion)
 
-	external := api.Group("/external")
-	external.Use(getApiAccessToken)
-	external.Post("/get-access-token", login)
-	external.Post("/relative", connectPageToRelative)
-	external.Get("/individual-pages", connectPageToRelative)
+	// external := api.Group("/external")
+	// external.Use(getApiAccessToken)
+	// external.Post("/get-access-token", login)
+	// external.Post("/relative", connectPageToRelative)
+	// external.Get("/individual-pages", connectPageToRelative)
 
 	// (*v1).Use(utils.Redirect)
 }

@@ -1,15 +1,8 @@
 {
     "app": {
-      "port": "3033"
+      "port": "443"
     },
     "dev": true,
-    "db": {
-      "host": "database",
-      "port": "26257",
-      "user": "postgres",
-      "password": "pgpwd",
-      "dbname": "postgres"
-    },
     "bot": {
       "bot_id": "bot7193262302",
       "api_key": "AAFadZQ58TP9vGRSV4Gl0fj_GB9KAKQrTCU"
