@@ -272,6 +272,10 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                         </UIButton>
                       </div>
                     </div>
+                    <div v-if="stage == STAGE.APPLYING" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
+                      Отправка страницы памяти...<br>
+                      <span class="loader"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -280,6 +284,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 
 <script>
 import { MemoryService } from '@/services/MemoryService';
+import { ExternalService } from '@/services/ExternalService';
 const MODEL = "gigachat";
 const STAGE = {
   SETUP_STARTER: 1,
@@ -294,7 +299,8 @@ const STAGE = {
   SELECT_BIOGRAPHY: 201,
   BIOGRAPHY_QUESTION: 202,
   BIOGRAPHY_CREATION: 203,
-  VIEW_BIOGRAPHY: 204
+  VIEW_BIOGRAPHY: 204,
+  APPLYING: 300
 }
 export default {
     name: "MainView",
@@ -470,7 +476,45 @@ export default {
         finish();
       },
       finish() {
-        // TODO send to backend
+        this.stage = STAGE.APPLYING;
+        const options = ExternalService.createRequestOptions(
+          this.name,
+          this.epitaphy,
+          this.author,
+          this.splitName(this.name).firstName,
+          this.splitName(this.name).lastName,
+          null,
+          this.places[0],
+          this.places[1],
+          this.children,
+          this.partner,
+          this.citizenship,
+          this.education,
+          this.career,
+          this.achievments,
+          this.biography[0].header,
+          this.biography[0].text,
+          this.biography[1].header,
+          this.biography[1].text,
+          this.biography[2].header,
+          this.biography[2].text,
+          this.dates[0],
+          this.dates[1]
+        );
+        ExternalService.sendPage(options, (data) => {
+          debugger;
+        }, err => {
+          this.$notify({text:"Не удалось загрузить страницу на сервер, попробуйте позже.", type: "error"});
+          console.log(err);
+        })
+      },
+      // UTILS
+      splitName(name) {
+        const nameParts = name.split(' ');
+        if (nameParts.length === 1) return { firstName: nameParts[0], patronymic: null, lastName: null };
+        if (nameParts.length === 2) return { firstName: nameParts[0], patronymic: null, lastName: nameParts[1] };
+        if (nameParts.length === 3) return { firstName: nameParts[0], patronymic: nameParts[1], lastName: nameParts[2] };
+        return { firstName: null, patronymic: null, lastName: null };
       }
     },
     mounted() {

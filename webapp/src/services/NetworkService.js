@@ -13,18 +13,17 @@ export const NetworkService = {
      * @param {function} fail - The callback function to be executed if the request fails.
      */
     ClassicRequest(method, url, data, success, fail, contentType = 'application/json') {
+        NetworkService.RawRequest({
+            method: method,
+            url: `${configuration.serverUrl}${url}`,
+            data: data,
+            headers: { 'Content-Type': contentType }
+        });
+    },
+    RawRequest(options, success, fail) {
         (async () => {
-            let response = await axios({
-                method: method,
-                url: `${configuration.serverUrl}${url}`,
-                data: data,
-                headers: { 'Content-Type': contentType }
-            }).catch(fail);
+            let response = await axios(options).catch(fail);
             if (response) success(response);
         })();
-    },
-    // Function to handle general completion request
-    getCompletion(aiModel, requestMessage, success, fail) {
-        this.ClassicRequest('POST', `/api/v1/completion/${aiModel}`, { request_message: requestMessage }, success, fail);
     }
 };
