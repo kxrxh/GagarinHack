@@ -45,7 +45,7 @@ func gigachatStory(c *fiber.Ctx) error {
 		}
 	}
 
-	reqBodyBytes, _ := json.Marshal(gigachatRequestBody)
+	reqBodyBytes, _ := json.Marshal(getGigachatRequestBody(1024, 0.6))
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", baseUrl), bytes.NewBuffer(reqBodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
@@ -73,6 +73,7 @@ func gigachatStory(c *fiber.Ctx) error {
 		zap.S().Debugln(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
+
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"response": data.Choices[0].Message.Content,
 	})

@@ -11,10 +11,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 	// Import resty into your code and refer it as `resty`.
 
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
 func yandexStory(c *fiber.Ctx) error {
+	apiKey := viper.GetString("yandex.api_key")
+	folderId := viper.GetString("yandex.folder_id")
+
 	var requestBody RequestBody
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -42,7 +46,7 @@ func yandexStory(c *fiber.Ctx) error {
 		}
 	}
 
-	reqBodyBytes, _ := json.Marshal(yandexRequestBody)
+	reqBodyBytes, _ := json.Marshal(getYandexRequestBody(folderId, "1024", 0.1))
 
 	req, _ := http.NewRequest("POST", "https://llm.api.cloud.yandex.net/foundationModels/v1/completion", bytes.NewBuffer(reqBodyBytes))
 
@@ -50,6 +54,7 @@ func yandexStory(c *fiber.Ctx) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Connection", "keep-alive")
+	req.Header.Set("User-Agent", "PostmanRuntime/7.37.0")
 
 	client := &http.Client{
 		Timeout: 30 * time.Second,

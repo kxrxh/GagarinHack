@@ -14,11 +14,11 @@ import (
 
 type gigachatRequest struct {
 	Model             string  `json:"model"`
-	Temperature       float64 `json:"temperature"`
-	TopP              float64 `json:"top_p"`
+	Temperature       float32 `json:"temperature"`
+	TopP              float32 `json:"top_p"`
 	N                 int     `json:"n"`
 	MaxTokens         int     `json:"max_tokens"`
-	RepetitionPenalty float64 `json:"repetition_penalty"`
+	RepetitionPenalty float32 `json:"repetition_penalty"`
 	Stream            bool    `json:"stream"`
 	UpdateInterval    int     `json:"update_interval"`
 	Messages          []struct {
@@ -29,7 +29,7 @@ type gigachatRequest struct {
 
 type gigachatResponse struct {
 	Choices []gigachatChoice `json:"choices"`
-	Created int64            `json:"created"`
+	Created int32            `json:"created"`
 	Model   string           `json:"model"`
 	Object  string           `json:"object"`
 	Usage   gigachatUsage    `json:"usage"`
@@ -53,30 +53,34 @@ type gigachatUsage struct {
 	SystemTokens     int `json:"system_tokens"`
 }
 
-var gigachatRequestBody = gigachatRequest{
-	Model:             "GigaChat:latest",
-	Temperature:       0.6,
-	TopP:              0.47,
-	N:                 1,
-	MaxTokens:         1024,
-	RepetitionPenalty: 1.07,
-	Stream:            false,
-	UpdateInterval:    0,
-	Messages: []struct {
-		Role    string `json:"role"`
-		Content string `json:"content"`
-	}{
-		{
-			Role:    "system",
-			Content: SYSTEM_PROMPT,
+func getGigachatRequestBody(maxTokens int, temperature float32) *gigachatRequest {
+	if maxTokens == 0 || temperature < 0 {
+		return nil
+	}
+	return &gigachatRequest{
+		Model:             "GigaChat:latest",
+		Temperature:       temperature,
+		TopP:              0.47,
+		N:                 1,
+		MaxTokens:         maxTokens,
+		RepetitionPenalty: 1.07,
+		Stream:            false,
+		UpdateInterval:    0,
+		Messages: []struct {
+			Role    string `json:"role"`
+			Content string `json:"content"`
+		}{
+			{
+				Role:    "system",
+				Content: SYSTEM_PROMPT,
+			},
+			{
+				Role:    "user",
+				Content: USER_PROMPT,
+			},
 		},
-		{
-			Role:    "user",
-			Content: USER_PROMPT,
-		},
-	},
+	}
 }
-
 func getAccessToken(c *fiber.Ctx) error {
 	scope := viper.GetString("gigachat.scope")
 	authUrl := viper.GetString("gigachat.authUrl")

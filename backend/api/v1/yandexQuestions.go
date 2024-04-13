@@ -11,10 +11,14 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
 func yandexQuestions(c *fiber.Ctx) error {
+	apiKey := viper.GetString("yandex.api_key")
+	folderId := viper.GetString("yandex.folder_id")
+
 	var requestBody RequestBody
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -30,7 +34,7 @@ func yandexQuestions(c *fiber.Ctx) error {
 
 	USER_PROMPT = requestBody.RequestMessage
 
-	reqBodyBytes, _ := json.Marshal(yandexRequestBody)
+	reqBodyBytes, _ := json.Marshal(getYandexRequestBody(folderId, "1024", 0.1))
 
 	req, _ := http.NewRequest("POST", "https://llm.api.cloud.yandex.net/foundationModels/v1/completion", bytes.NewBuffer(reqBodyBytes))
 

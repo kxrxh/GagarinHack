@@ -1,9 +1,8 @@
 package v1
 
-import "github.com/spf13/viper"
+import "fmt"
 
-var folderId = viper.GetString("yandex.folder_id")
-var apiKey = viper.GetString("yandex.api_key")
+// var folderId = viper.GetString("yandex.folder_id")
 
 type YandexRequest struct {
 	ModelURI          string `json:"modelUri"`
@@ -18,30 +17,36 @@ type YandexRequest struct {
 	} `json:"messages"`
 }
 
-var yandexRequestBody = YandexRequest{
-	ModelURI: "gpt://" + folderId + "/yandexgpt",
-	CompletionOptions: struct {
-		Stream      bool    "json:\"stream\""
-		Temperature float32 "json:\"temperature\""
-		MaxTokens   string  "json:\"maxTokens\""
-	}{
-		Stream:      false,
-		Temperature: 0.1,
-		MaxTokens:   "1024",
-	},
-	Messages: []struct {
-		Role string "json:\"role\""
-		Text string "json:\"text\""
-	}{
-		{
-			Role: "system",
-			Text: SYSTEM_PROMPT,
+func getYandexRequestBody(folderId string, maxTokens string, temperature float32) *YandexRequest {
+	if folderId == "" || maxTokens == "" || temperature < 0 {
+		return nil
+	}
+
+	return &YandexRequest{
+		ModelURI: fmt.Sprintf("gpt://%s/yandexgpt-lite", folderId),
+		CompletionOptions: struct {
+			Stream      bool    "json:\"stream\""
+			Temperature float32 "json:\"temperature\""
+			MaxTokens   string  "json:\"maxTokens\""
+		}{
+			Stream:      false,
+			Temperature: temperature,
+			MaxTokens:   maxTokens,
 		},
-		{
-			Role: "user",
-			Text: USER_PROMPT,
+		Messages: []struct {
+			Role string "json:\"role\""
+			Text string "json:\"text\""
+		}{
+			{
+				Role: "system",
+				Text: SYSTEM_PROMPT,
+			},
+			{
+				Role: "user",
+				Text: USER_PROMPT,
+			},
 		},
-	},
+	}
 }
 
 type yandexResult struct {

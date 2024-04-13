@@ -33,7 +33,7 @@ func gigachatCompletion(c *fiber.Ctx) error {
 
 	USER_PROMPT = requestBody.RequestMessage
 
-	reqBodyBytes, _ := json.Marshal(gigachatRequestBody)
+	reqBodyBytes, _ := json.Marshal(getGigachatRequestBody(1024, 0.6))
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", baseUrl), bytes.NewBuffer(reqBodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
