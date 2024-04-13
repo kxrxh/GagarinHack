@@ -73,6 +73,9 @@ func yandexCompletion(c *fiber.Ctx) error {
 	resp, err := client.R().
 		SetHeader("Authorization", fmt.Sprintf("Api-Key %s", apiKey)).
 		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "*/*").
+		SetHeader("Connection", "keep-alive").
+		SetHeader("User-Agent", "PostmanRuntime/7.37.0").
 		SetBody(reqBody).
 		Post("https://llm.api.cloud.yandex.net/foundationModels/v1/completion")
 
