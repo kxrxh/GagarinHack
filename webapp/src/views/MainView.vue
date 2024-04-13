@@ -1,7 +1,10 @@
 <script setup>
-import UILabeledInput from '../components/ui/UILabeledInput.vue'
-import UIButton from '../components/ui/UIButton.vue'
-import '../assets/css/loader.css'
+import UILabel from '@/components/ui/UILabel.vue';
+import UILabeledInput from '../components/ui/UILabeledInput.vue';
+import UIButton from '../components/ui/UIButton.vue';
+import '../assets/css/loader.css';
+import '@vuepic/vue-datepicker/dist/main.css';
+import VueDatePicker from '@vuepic/vue-datepicker';
 </script>
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 h-screen">
@@ -9,7 +12,45 @@ import '../assets/css/loader.css'
             <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                 <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center">Код памяти</h1>
-                    <div v-if="block == 0" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                    <div v-if="stage == STAGE.SETUP" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                      <div>
+                        <UILabel>
+                          Выберите дату рождения
+                        </UILabel>
+                        <VueDatePicker v-model="dates[0]"
+                          :enable-time-picker="false"
+                          :max-date="dates[1]"
+                          :format="formatter"
+                          locale="ru-RU"
+                          select-text="Выбрать"
+                          cancel-text="Закрыть"
+                          :dark="true"
+                          :clearable="false"
+                          class="!mt-0"
+                          input-class-name="dp-custom-input"></VueDatePicker>
+                      </div>
+                      <div>
+                        <UILabel>
+                          Выберите дату смерти
+                        </UILabel>
+                        <VueDatePicker v-model="dates[1]"
+                          :enable-time-picker="false"
+                          :min-date="dates[0]"
+                          :max-date="new Date()"
+                          :format="formatter"
+                          locale="ru-RU"
+                          select-text="Выбрать"
+                          cancel-text="Закрыть"
+                          :dark="true"
+                          :clearable="false"
+                          class="!mt-0"
+                          input-class-name="dp-custom-input"></VueDatePicker>
+                      </div>
+                      <UIButton classExtension="w-full py-2.5" @click="next">
+                        Продолжить
+                      </UIButton>
+                    </div>
+                    <div v-if="stage == STAGE.QUESTION" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
                       <UILabeledInput
                         type="text"
                         class="animate animate-fade animate-ease-in-out animate-duration-350 animate-once"
@@ -20,19 +61,19 @@ import '../assets/css/loader.css'
                         Продолжить
                       </UIButton>
                       <p class="text-sm font-light text-gray-500 dark:text-gray-400 text-center !mt-4">
-                          <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="back" :disabled="index == 0">
-                            Вернуться на предыдущий
-                          </a><br><br>
                           <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="skip">
                             Пропустить вопрос
+                          </a><br><br>
+                          <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="back" v-if="index != 0">
+                            Вернуться на предыдущий
                           </a>
                       </p>
                     </div>
-                    <div v-if="block == 1" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
+                    <div v-if="stage == STAGE.CREATION" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
                       Создание кода памяти...<br>
                       <span class="loader"></span>
                     </div>
-                    <div v-if="block == 2" class="space-y-2 md:space-y-4 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
+                    <div v-if="stage == STAGE.VIEW" class="space-y-2 md:space-y-4 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
                       <div class="grid gap-2 mb-2 grid-cols-2">
                         <UIButton color="warning" classExtension="py-2.5" @click="regenerate">
                           Перегенерировать
@@ -69,19 +110,34 @@ import '../assets/css/loader.css'
 </template>
 
 <script>
+const STAGE = {
+  SETUP: 100,
+  QUESTION: 101,
+  CREATION: 102,
+  VIEW: 103
+}
 export default {
     name: "MainView",
+    components: {
+      VueDatePicker
+    },
     data() {
       return {
         index: 0,
+        dates: [new Date(), new Date()],
         questions: ["Как его зовут?", "В каком городе он родился?", "Что вас в нем радовало?"],
         answers: ["", "", ""],
         results: ["", ""],
-        block: 2
+        stage: STAGE.SETUP
       }
     },
     methods: {
       next() {
+        if(this.stage == STAGE.SETUP) {
+          // TODO generate questions
+          this.stage = STAGE.QUESTION;
+          return;
+        }
         this.index++;
         this.checkEnd();
       },
@@ -106,12 +162,19 @@ export default {
         this.generate();
       },
       generate() {
-        this.block = 1;
+        this.stage = STAGE.CREATION;
         // TODO send to backend
       },
       reset() {
-        this.block = 0;
+        this.stage = STAGE.QUESTION;
         // TODO remove questions and create new
+      },
+      formatter(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+
+        return `${day}.${month}.${year}`;
       }
     },
     mounted() {
@@ -119,3 +182,11 @@ export default {
     }
 }
 </script>
+
+<style>
+.dp-custom-input {
+  box-shadow: 0 0 6px rgb(14, 165, 233);
+  color: rgb(14, 165, 233);
+  margin-top: 0;
+}
+</style>

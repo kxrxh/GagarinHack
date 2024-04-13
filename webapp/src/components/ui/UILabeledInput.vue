@@ -1,8 +1,12 @@
+<script setup>
+import UILabel from './UILabel.vue';
+</script>
+
 <template>
     <div>
-        <label :for="property" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-center">
+        <UILabel :for="property">
             <slot></slot>
-        </label>
+        </UILabel>
         <input
             v-if="!textarea"
             :id="property"
