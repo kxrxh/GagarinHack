@@ -32,31 +32,9 @@ func gigachatGenerateQuestions(c *fiber.Ctx) error {
 		})
 	}
 
-	reqBody := gigachatRequest{
-		Model:             "GigaChat:latest",
-		Temperature:       0.6,
-		TopP:              0.47,
-		N:                 1,
-		MaxTokens:         1024,
-		RepetitionPenalty: 1.07,
-		Stream:            false,
-		UpdateInterval:    0,
-		Messages: []struct {
-			Role    string `json:"role"`
-			Content string `json:"content"`
-		}{
-			{
-				Role:    "system",
-				Content: SYSTEM_PROMPT,
-			},
-			{
-				Role:    "user",
-				Content: requestBody.RequestMessage,
-			},
-		},
-	}
+	USER_PROMPT = requestBody.RequestMessage
 
-	reqBodyBytes, _ := json.Marshal(reqBody)
+	reqBodyBytes, _ := json.Marshal(gigachatRequestBody)
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", baseUrl), bytes.NewBuffer(reqBodyBytes))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))

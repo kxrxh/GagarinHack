@@ -53,6 +53,30 @@ type gigachatUsage struct {
 	SystemTokens     int `json:"system_tokens"`
 }
 
+var gigachatRequestBody = gigachatRequest{
+	Model:             "GigaChat:latest",
+	Temperature:       0.6,
+	TopP:              0.47,
+	N:                 1,
+	MaxTokens:         1024,
+	RepetitionPenalty: 1.07,
+	Stream:            false,
+	UpdateInterval:    0,
+	Messages: []struct {
+		Role    string `json:"role"`
+		Content string `json:"content"`
+	}{
+		{
+			Role:    "system",
+			Content: SYSTEM_PROMPT,
+		},
+		{
+			Role:    "user",
+			Content: USER_PROMPT,
+		},
+	},
+}
+
 func getAccessToken(c *fiber.Ctx) error {
 	scope := viper.GetString("gigachat.scope")
 	authUrl := viper.GetString("gigachat.authUrl")

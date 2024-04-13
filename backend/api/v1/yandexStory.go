@@ -11,14 +11,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	// Import resty into your code and refer it as `resty`.
 
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
 func yandexStory(c *fiber.Ctx) error {
-	apiKey := viper.GetString("yandex.api_key")
-	folderId := viper.GetString("yandex.folder_id")
-
 	var requestBody RequestBody
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -46,33 +42,7 @@ func yandexStory(c *fiber.Ctx) error {
 		}
 	}
 
-	reqBody := YandexRequest{
-		ModelURI: "gpt://" + folderId + "/yandexgpt",
-		CompletionOptions: struct {
-			Stream      bool    "json:\"stream\""
-			Temperature float32 "json:\"temperature\""
-			MaxTokens   string  "json:\"maxTokens\""
-		}{
-			Stream:      false,
-			Temperature: 0.1,
-			MaxTokens:   "1024",
-		},
-		Messages: []struct {
-			Role string "json:\"role\""
-			Text string "json:\"text\""
-		}{
-			{
-				Role: "system",
-				Text: SYSTEM_PROMPT,
-			},
-			{
-				Role: "user",
-				Text: USER_PROMPT,
-			},
-		},
-	}
-
-	reqBodyBytes, _ := json.Marshal(reqBody)
+	reqBodyBytes, _ := json.Marshal(yandexRequestBody)
 
 	req, _ := http.NewRequest("POST", "https://llm.api.cloud.yandex.net/foundationModels/v1/completion", bytes.NewBuffer(reqBodyBytes))
 
@@ -80,7 +50,6 @@ func yandexStory(c *fiber.Ctx) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Connection", "keep-alive")
-	req.Header.Set("User-Agent", "PostmanRuntime/7.37.0")
 
 	client := &http.Client{
 		Timeout: 30 * time.Second,

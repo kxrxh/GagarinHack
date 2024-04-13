@@ -53,21 +53,7 @@ func getApiAccessToken(c *fiber.Ctx) error {
 		})
 	}
 
-	// c.Locals("api_access_token", accessTokenResponse.AccessToken)
-	// return c.Next()
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"access_token": accessTokenResponse.AccessToken,
 	})
 }
-
-// func login(c *fiber.Ctx) error {
-// 	accessToken := c.Locals("api_access_token").(string)
-// 	if accessToken == "" {
-// 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-// 			"error": "unauthorized",
-// 		})
-// 	}
-// 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-// 		"access_token": accessToken,
-// 	})
-// }
