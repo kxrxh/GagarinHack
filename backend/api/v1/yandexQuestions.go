@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -84,7 +85,17 @@ func yandexQuestions(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
+	questionRegex := regexp.MustCompile(`^\d*\.?\s*([А-Я].*\?)$`)
+
+	var questions []string
+	for _, line := range strings.Split(data.Result.Alternatives[0].Message.Text, "\n") {
+		if questionRegex.MatchString(line) {
+			questions = append(questions, line)
+		}
+	}
+
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"response": strings.Split(data.Result.Alternatives[0].Message.Text, "\n"),
+		"response": questions,
 	})
+
 }

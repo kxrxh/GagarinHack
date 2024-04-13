@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,6 +19,7 @@ import (
 //
 // Parameters:
 //   - c: Context object for handling HTTP requests and responses.
+//
 // Return type: error
 // gigachatGenerateQuestions generates questions using the Gigachat API.
 func gigachatGenerateQuestions(c *fiber.Ctx) error {
@@ -50,8 +52,8 @@ func gigachatGenerateQuestions(c *fiber.Ctx) error {
 		})
 	}
 
-	USER_PROMPT = USER_PROMPT_QUESTIONS + " человека " + requestBody.HumanInfo.Sex + " пола " + "  по имени " + requestBody.HumanInfo.Name + "," + " дата рождения " + requestBody.HumanInfo.DateOfBirth + SYSTEM_PROMPT_QUESTIONS_FORMAT
-
+	USER_PROMPT = USER_PROMPT_QUESTIONS + " человека " + requestBody.HumanInfo.Sex + " пола" + " по имени " + requestBody.HumanInfo.Name + "," + " дата рождения " + requestBody.HumanInfo.DateOfBirth + " " + SYSTEM_PROMPT_QUESTIONS_FORMAT
+	zap.S().Debugf("USER_PROMPT: %s", USER_PROMPT)
 	reqBodyBytes, _ := json.Marshal(getGigachatRequestBody(1024, 0.6))
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", baseUrl), bytes.NewBuffer(reqBodyBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -81,7 +83,16 @@ func gigachatGenerateQuestions(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
+	questionRegex := regexp.MustCompile(`^\d*\.?\s*([А-Я].*\?)$`)
+
+	var questions []string
+	for _, line := range strings.Split(data.Choices[0].Message.Content, "\n") {
+		if questionRegex.MatchString(line) {
+			questions = append(questions, line)
+		}
+	}
+
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"response": strings.Split(data.Choices[0].Message.Content, "\n"),
+		"response": questions,
 	})
 }

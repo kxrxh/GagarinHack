@@ -33,7 +33,7 @@ func CreateApi(address, port string) *Api {
 	// prom := prometheusMiddleware(app)
 	app.Use(cors.New(cors.Config{
 		AllowHeaders:     "Origin, Authorization,Content-Type,Origin,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin",
-		AllowOrigins:     "https://github.com",
+		AllowOrigins:     "https://themixadev.github.io, http://localhost",
 		AllowCredentials: true,
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
 	}))
