@@ -13,6 +13,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// gigachatCompletion handles the completion of a chat request.
+//
+// It takes a Fiber context object as a parameter.
+// Returns an error.
 func gigachatCompletion(c *fiber.Ctx) error {
 	accessToken := c.Locals("sber_access_token").(string)
 

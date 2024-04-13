@@ -14,6 +14,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// gigachatGenerateQuestions generates questions for a chat based on the provided request body parameters.
+//
+// Parameters:
+//   - c: Context object for handling HTTP requests and responses.
+// Return type: error
+// gigachatGenerateQuestions generates questions using the Gigachat API.
 func gigachatGenerateQuestions(c *fiber.Ctx) error {
 	accessToken := c.Locals("sber_access_token").(string)
 
@@ -26,13 +32,25 @@ func gigachatGenerateQuestions(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
-	if requestBody.RequestMessage == "" {
+	if requestBody.HumanInfo.Sex == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "request_message query param is required",
+			"error": "sex query param is required",
 		})
 	}
 
-	USER_PROMPT = requestBody.RequestMessage
+	if requestBody.HumanInfo.Name == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "name query param is required",
+		})
+	}
+
+	if requestBody.HumanInfo.DateOfBirth == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "date_of_birth query param is required",
+		})
+	}
+
+	USER_PROMPT = USER_PROMPT_QUESTIONS + " человека " + requestBody.HumanInfo.Sex + " пола " + "  по имени " + requestBody.HumanInfo.Name + "," + " дата рождения " + requestBody.HumanInfo.DateOfBirth + SYSTEM_PROMPT_QUESTIONS_FORMAT
 
 	reqBodyBytes, _ := json.Marshal(getGigachatRequestBody(1024, 0.6))
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", baseUrl), bytes.NewBuffer(reqBodyBytes))

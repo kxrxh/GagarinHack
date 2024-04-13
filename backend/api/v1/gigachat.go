@@ -53,6 +53,12 @@ type gigachatUsage struct {
 	SystemTokens     int `json:"system_tokens"`
 }
 
+// getGigachatRequestBody generates a request body for GigaChat based on the provided maxTokens and temperature.
+//
+// Parameters:
+// - maxTokens: an integer representing the maximum tokens allowed.
+// - temperature: a float32 value for controlling the randomness of the generation.
+// Returns a pointer to a gigachatRequest struct.
 func getGigachatRequestBody(maxTokens int, temperature float32) *gigachatRequest {
 	if maxTokens == 0 || temperature < 0 {
 		return nil

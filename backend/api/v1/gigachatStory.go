@@ -13,6 +13,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// gigachatStory handles the story generation based on the type of story requested.
+//
+// It takes a Fiber context object as a parameter.
+// Returns an error.
 func gigachatStory(c *fiber.Ctx) error {
 	accessToken := c.Locals("sber_access_token").(string)
 

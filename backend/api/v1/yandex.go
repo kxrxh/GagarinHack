@@ -2,8 +2,6 @@ package v1
 
 import "fmt"
 
-// var folderId = viper.GetString("yandex.folder_id")
-
 type YandexRequest struct {
 	ModelURI          string `json:"modelUri"`
 	CompletionOptions struct {
@@ -17,6 +15,12 @@ type YandexRequest struct {
 	} `json:"messages"`
 }
 
+// getYandexRequestBody generates a Yandex request body based on the provided folder ID, max tokens, and temperature.
+//
+// folderId: The ID of the folder.
+// maxTokens: The maximum number of tokens.
+// temperature: The temperature for the completion.
+// Returns a pointer to a YandexRequest.
 func getYandexRequestBody(folderId string, maxTokens string, temperature float32) *YandexRequest {
 	if folderId == "" || maxTokens == "" || temperature < 0 {
 		return nil

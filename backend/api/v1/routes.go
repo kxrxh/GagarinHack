@@ -4,6 +4,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// SetupRoutesV1 sets up the routes for the API version 1.
+//
+// v1: Pointer to the fiber.Router instance.
+// No return value.
 func SetupRoutesV1(v1 *fiber.Router) {
 	api := (*v1).Group("/v1")
 

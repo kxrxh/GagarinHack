@@ -18,7 +18,12 @@ type Api struct {
 	app        *fiber.App
 }
 
-// CreateApi creates a new API instance with the given address and port
+// CreateApi creates a new API instance with the given address and port.
+//
+// Parameters:
+// - address: the address for the API
+// - port: the port for the API
+// Returns a pointer to the created Api instance.
 func CreateApi(address, port string) *Api {
 	if port == "" {
 		zap.S().Panic("app port is not provided")
@@ -39,7 +44,6 @@ func CreateApi(address, port string) *Api {
 
 // prometheusMiddleware generates a FiberPrometheus middleware for the given app.
 func prometheusMiddleware(app *fiber.App) *fiberprometheus.FiberPrometheus {
-	// TODO: Make sure middleware works
 	prometheus := fiberprometheus.New("prometheus-service")
 	prometheus.RegisterAt(app, "/metrics")
 	return prometheus

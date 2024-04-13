@@ -15,6 +15,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// yandexQuestions handles the processing of a Yandex questions request.
+//
+// c: Context provided by Fiber framework.
+// error: An error interface.
 func yandexQuestions(c *fiber.Ctx) error {
 	apiKey := viper.GetString("yandex.api_key")
 	folderId := viper.GetString("yandex.folder_id")
@@ -26,13 +30,25 @@ func yandexQuestions(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
-	if requestBody.RequestMessage == "" {
+	if requestBody.HumanInfo.Sex == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "request_message query param is required",
+			"error": "sex query param is required",
 		})
 	}
 
-	USER_PROMPT = requestBody.RequestMessage
+	if requestBody.HumanInfo.Name == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "name query param is required",
+		})
+	}
+
+	if requestBody.HumanInfo.DateOfBirth == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "date_of_birth query param is required",
+		})
+	}
+
+	USER_PROMPT = USER_PROMPT_QUESTIONS + " человека " + requestBody.HumanInfo.Sex + " пола " + "  по имени " + requestBody.HumanInfo.Name + "," + " дата рождения " + requestBody.HumanInfo.DateOfBirth + SYSTEM_PROMPT_QUESTIONS_FORMAT
 
 	reqBodyBytes, _ := json.Marshal(getYandexRequestBody(folderId, "1024", 0.1))
 

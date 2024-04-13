@@ -15,6 +15,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// yandexStory handles the processing of a Yandex story request.
+//
+// c: Context provided by Fiber framework.
+// error: An error interface.
 func yandexStory(c *fiber.Ctx) error {
 	apiKey := viper.GetString("yandex.api_key")
 	folderId := viper.GetString("yandex.folder_id")

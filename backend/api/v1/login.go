@@ -17,6 +17,10 @@ type accessTokenRequest struct {
 	Device   string `json:"device"`
 }
 
+// getApiAccessToken retrieves the access token from an external URL based on the request body.
+//
+// It takes a Fiber context object as a parameter.
+// Returns an error.
 func getApiAccessToken(c *fiber.Ctx) error {
 	apiURL := viper.GetString("external.url")
 
