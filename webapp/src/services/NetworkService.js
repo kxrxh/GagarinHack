@@ -23,24 +23,8 @@ export const NetworkService = {
             if (response) success(response);
         })();
     },
-
-    // Function to handle epitaph questions request
-    getEpitaphQuestions(aiModel, requestMessage, success, fail) {
-        this.ClassicRequest('POST', `/api/v1/completion/${aiModel}/questions`, { request_message: requestMessage }, success, fail);
-    },
-
-    // Function to handle biography story request
-    getBiographyStory(aiModel, typeOfStory, humanInfo, success, fail) {
-        this.ClassicRequest('POST', `/api/v1/completion/${aiModel}/story`, { type_of_story: typeOfStory, human_info: humanInfo }, success, fail);
-    },
-
     // Function to handle general completion request
     getCompletion(aiModel, requestMessage, success, fail) {
         this.ClassicRequest('POST', `/api/v1/completion/${aiModel}`, { request_message: requestMessage }, success, fail);
-    },
-
-    // Function to handle token request
-    getAccessToken(email, password, device, success, fail) {
-        this.ClassicRequest('POST', '/api/v1/external/get-access-token', { email: email, password: password, device: device }, success, fail);
     }
 };

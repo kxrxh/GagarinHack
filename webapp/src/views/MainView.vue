@@ -1,6 +1,7 @@
 <script setup>
 import UILabel from '@/components/ui/UILabel.vue';
 import UILabeledInput from '../components/ui/UILabeledInput.vue';
+import UIDropdown from '../components/ui/UIDropdown.vue';
 import UIButton from '../components/ui/UIButton.vue';
 import '../assets/css/loader.css';
 import '@vuepic/vue-datepicker/dist/main.css';
@@ -46,9 +47,28 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                           class="!mt-0"
                           input-class-name="dp-custom-input"></VueDatePicker>
                       </div>
-                      <UIButton classExtension="w-full py-2.5" @click="next">
+                      <div>
+                        <UILabel>
+                          Выберите пол
+                        </UILabel>
+                        <UIDropdown
+                          v-model="sex"
+                          :options='{"мужского": "Мужской", "женского": "Женский"}'>
+                          Пол не выбран
+                        </UIDropdown>
+                      </div>
+                      <UILabeledInput
+                        type="text"
+                        v-model="name">
+                        Введите ФИО
+                      </UILabeledInput>
+                      <UIButton classExtension="w-full py-2.5" @click="next" :disabled="name.length < 1">
                         Продолжить
                       </UIButton>
+                    </div>
+                    <div v-if="stage == STAGE.AWAIT_QUESTION" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
+                      Создание вопросов...<br>
+                      <span class="loader"></span>
                     </div>
                     <div v-if="stage == STAGE.QUESTION" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
                       <UILabeledInput
@@ -61,7 +81,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                         Продолжить
                       </UIButton>
                       <p class="text-sm font-light text-gray-500 dark:text-gray-400 text-center !mt-4">
-                          <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="skip" v-if="!unskip.includes(index)">
+                          <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="skip">
                             Пропустить вопрос<br><br>
                           </a>
                           <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="back" v-if="index != 0">
@@ -70,7 +90,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                       </p>
                     </div>
                     <div v-if="stage == STAGE.CREATION" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
-                      Создание страницы памяти...<br>
+                      Создание эпитафии...<br>
                       <span class="loader"></span>
                     </div>
                     <div v-if="stage == STAGE.VIEW" class="space-y-2 md:space-y-4 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
@@ -87,20 +107,20 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                         type="text"
                         class="animate animate-fade animate-ease-in-out animate-duration-350 animate-once"
                         v-model="results[0]">
-                        Предложенная страница памяти №1:
+                        Предложенная эпитафия №1:
                       </UILabeledInput>
                       <UIButton classExtension="w-full py-2.5" @click="finish">
-                        Принять первую страницу памяти
+                        Принять первую эпитафию
                       </UIButton>
                       <UILabeledInput
                         :textarea="true"
                         type="text"
                         class="animate animate-fade animate-ease-in-out animate-duration-350 animate-once"
                         v-model="results[1]">
-                        Предложенная страница памяти №2:
+                        Предложенная эпитафия №2:
                       </UILabeledInput>
                       <UIButton classExtension="w-full py-2.5" @click="finish">
-                        Принять вторую страницу памяти
+                        Принять вторую эпитафию
                       </UIButton>
                     </div>
                 </div>
@@ -110,6 +130,8 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 </template>
 
 <script>
+import { MemoryService } from '@/services/MemoryService';
+const MODEL = "gigachat";
 const STAGE = {
   SETUP: 100,
   QUESTION: 101,
@@ -125,18 +147,27 @@ export default {
       return {
         index: 0,
         dates: [new Date(), new Date()],
-        questions: ["Как его зовут?", "В каком городе он родился?", "Что вас в нем радовало?"],
-        answers: ["", "", ""],
+        name: "",
+        sex: "мужского",
+        questions: [],
+        answers: [],
         results: ["", ""],
-        stage: STAGE.VIEW,
+        stage: STAGE.SETUP,
         unskip: [0]
       }
     },
     methods: {
       next() {
         if(this.stage == STAGE.SETUP) {
-          // TODO generate questions
-          this.stage = STAGE.QUESTION;
+          this.stage = STAGE.AWAIT_QUESTION;
+          MemoryService.getQuestions(MODEL, this.name, this.sex, this.dates[0], (data) => {
+            this.questions = data.response;
+            this.answers = Array.from({ length: this.questions.length }).fill("");
+            this.stage = STAGE.QUESTION;
+          }, (err) => {
+            // TODO handle error
+            debugger;
+          })
           return;
         }
         this.index++;
@@ -144,7 +175,6 @@ export default {
       },
       skip() {
         this.index++;
-        // TODO recreate question
         this.checkEnd();
       },
       back() {
@@ -164,7 +194,33 @@ export default {
       },
       generate() {
         this.stage = STAGE.CREATION;
-        // TODO send to backend
+        const questions = {};
+        for (let i = 0; i < this.questions.length; i++) {
+            const question = this.questions[i];
+            const answer = this.answers[i];
+            if (answer !== "") {
+              questions[question] = answer;
+            }
+        }
+        const checkContinue = () => {
+          if(this.results[0] && this.results[1]) {
+            this.stage = STAGE.VIEW;
+          }
+        }
+        MemoryService.getStory(MODEL, "epitaph", this.name, this.sex, this.dates[0], this.dates[1], questions, (data) => {
+          this.results[0] = data.response;
+          checkContinue();
+        }, (err) => {
+          // TODO handle error
+          debugger;
+        })
+        MemoryService.getStory("yandex", "epitaph", this.name, this.sex, this.dates[0], this.dates[1], questions, (data) => {
+          this.results[1] = data.response;
+          checkContinue();
+        }, (err) => {
+          // TODO handle error
+          debugger;
+        })
       },
       reset() {
         this.stage = STAGE.QUESTION;
