@@ -23,7 +23,7 @@ func gigachatBio(c *fiber.Ctx) error {
 		zap.S().Debugln(err)
 		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
-
+	USER_PROMPT = USER_PROMPT_BIOGRAPHY_START + requestBody.Previous
 	if requestBody.TypeOfStory == "youth" {
 		USER_PROMPT = USER_PROMPT_BIOGRAPHY + " биографии человека в детстве и юношестве "
 	} else if requestBody.TypeOfStory == "middle_age" {

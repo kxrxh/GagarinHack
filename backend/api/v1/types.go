@@ -6,7 +6,8 @@ const SYSTEM_PROMPT_HEADING_FORMAT = "Используй строго следу
 
 var USER_PROMPT = ""
 var USER_PROMPT_EPITAPH = "Сгенируй обязательно краткую (не более 200 символов) эпитафию для следующего человека опираясь на факты о нем"
-var USER_PROMPT_BIOGRAPHY = "Сгенируй детальную биографию для описания"
+var USER_PROMPT_BIOGRAPHY_START = "На данный момент в биографии человека имеется следующее: "
+var USER_PROMPT_BIOGRAPHY = "Сгенируй продолжение в виде детальной биографии для описания"
 var USER_PROMPT_ENDING = "Сгенируй детальную заключение для биографии "
 var USER_PROMPT_QUESTIONS = "Сделай короткие вопросы (от 6 до 10) для создания "
 
@@ -16,6 +17,7 @@ type RequestBody struct {
 	RequestMessage string    `json:"request_message"`
 	TypeOfStory    string    `json:"type_of_story"`
 	PeriodOfLife   string    `json:"period_of_life"`
+	Previous       string    `json:"previous"`
 	HumanInfo      HumanInfo `json:"human_info"`
 }
 
