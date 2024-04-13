@@ -42,7 +42,7 @@ func yandexCompletion(c *fiber.Ctx) error {
 	}
 
 	reqBody := YandexRequest{
-		ModelURI: "gpt://" + folderId + "/yandexgpt-lite",
+		ModelURI: "gpt://" + folderId + "/yandexgpt",
 		CompletionOptions: struct {
 			Stream      bool    "json:\"stream\""
 			Temperature float32 "json:\"temperature\""
