@@ -23,13 +23,13 @@ func gigachatBio(c *fiber.Ctx) error {
 		zap.S().Debugln(err)
 		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
-	USER_PROMPT = USER_PROMPT_BIOGRAPHY_START + requestBody.Previous
+	USER_PROMPT = USER_PROMPT_BIOGRAPHY_START + requestBody.Previous + "\n"
 	if requestBody.TypeOfStory == "youth" {
-		USER_PROMPT = USER_PROMPT_BIOGRAPHY + " биографии человека в детстве и юношестве "
+		USER_PROMPT += USER_PROMPT_BIOGRAPHY + " биографии человека в детстве и юношестве "
 	} else if requestBody.TypeOfStory == "middle_age" {
-		USER_PROMPT = USER_PROMPT_BIOGRAPHY + " биографии человека в средение год а жизни "
+		USER_PROMPT += USER_PROMPT_BIOGRAPHY + " биографии человека в средение год а жизни "
 	} else if requestBody.TypeOfStory == "old_age" {
-		USER_PROMPT = USER_PROMPT_BIOGRAPHY + " биографии человека в последние года жизни "
+		USER_PROMPT += USER_PROMPT_BIOGRAPHY + " биографии человека в последние года жизни "
 	} else {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "type_of_story query param is required",
