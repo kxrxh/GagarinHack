@@ -80,12 +80,28 @@ func (kv *KeyValueStorage) Set(key, value string) {
 
 // Delete deletes the value for a given key and all its variants.
 func (kv *KeyValueStorage) Delete(key string) error {
+	deleted := kv.DeleteSubtree(key)
+	
+	if _, ok := kv.data[key]; !ok {
+		if deleted == nil {
+			return nil
+		}
+		return errors.New("key does not exist")
+	}
+	delete(kv.data, key)
+
+	kv.SaveToDisk()
+
+	return nil
+}
+
+func (kv *KeyValueStorage) DeleteSubtree(key string) error {
 	deleted := false
 
 	// Iterate over the keys in kv.data
 	for k := range kv.data {
 		// Check if the key starts with the specified prefix
-		if strings.HasPrefix(k, fmt.Sprintf("%s.", key)) || k == key {
+		if strings.HasPrefix(k, fmt.Sprintf("%s.", key)) {
 			// Delete the key
 			delete(kv.data, k)
 			deleted = true
