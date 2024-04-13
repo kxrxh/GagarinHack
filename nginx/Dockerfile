@@ -1,7 +1,7 @@
 # Nginx setup
-FROM nginx:latest
+FROM nginx
 
-COPY --from=build /app/dist /app
+# COPY --from=build /app/dist /app
 
 COPY private/ /etc/nginx/ssl
 COPY nginx.conf /etc/nginx/nginx.conf
