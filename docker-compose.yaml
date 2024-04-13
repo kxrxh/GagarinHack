@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
 
   ###########
@@ -59,3 +61,16 @@ services:
       retries: 5
    volumes:
      - "./persistence/cockroach/:/cockroach/cockroach-data"
+
+  golang-kvdb:
+    build: ./kvdb
+    ports:
+      - "5173:5173"
+    environment:
+      DB_FILE: data/db.json
+      DB_PORT: 5173
+    volumes:
+      - kvdb_volume:/app/data
+
+volumes:
+  kvdb_volume:
