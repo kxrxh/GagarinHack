@@ -1,6 +1,6 @@
 {
     "app": {
-      "port": "443"
+      "port": "3033"
     },
     "dev": true,
     "bot": {
