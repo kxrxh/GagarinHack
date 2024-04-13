@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
-import logging
 import os
+from typing import List
 import requests
+
+from backend.types import GenerationRequest
 
 
 @dataclass
@@ -11,7 +13,7 @@ class ApiResponse:
     message: str = field(default_factory=str)
 
 
-class BackendApi:
+class GptAPI:
     # Initialize the base URL for the key-value storage from the environment variable
     __BASE_URL = os.environ.get('BACKEND_URL')
     if not __BASE_URL:
@@ -20,14 +22,36 @@ class BackendApi:
         __BASE_URL += '/'
 
     @staticmethod
-    def generate_epitaph_yandex(name: str, date_birth: str, date_death: str, **kwargs) -> str:
-        promt = f'Сгенирируй эпитафию для данного человека:\nФИО: {name}Дата рождения: {date_birth}Дата смерти: {date_death}'
-        response = requests.post(f"http://127.0.0.1:3033/api/v1/completion/yandex", json={"request_message": promt})
-        if response.status_code == 200:
-            return response.json()['result']['alternatives'][0]['message']['text']
-        else:
-            return str(response.status_code)
+    def generate_epitaph_yandex(req_body: GenerationRequest) -> str:
+        url = GptAPI.__BASE_URL + 'completion/yandex/story'
+        response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": "epitaph"})
+        return response.json()['response']
+
+    @staticmethod
+    def generate_epitaph_gigachat(req_body: GenerationRequest) -> str:
+        url = GptAPI.__BASE_URL + 'completion/gigachat/story'
+        response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": "epitaph"})
+        return response.json()['response']
+
+
+    @staticmethod
+    def generate_biography_yandex(req_body: GenerationRequest) -> str:
+        url = GptAPI.__BASE_URL + 'completion/yandex/story'
+        response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": "biography"})
+        return response.json()['response']
+
+    @staticmethod
+    def generate_biography_gigachat(req_body: GenerationRequest) -> str:
+        url = GptAPI.__BASE_URL + 'completion/gigachat/story'
+        response = requests.post(url, json={"human_info": req_body.__dict__, "type_of_story": "biography"})
+        return response.json()['response']
+    
+    @staticmethod
+    def generate_questions(req_body: GenerationRequest) -> List[str]:
+        url = GptAPI.__BASE_URL + 'completion/gigachat/questions'
+        response = requests.post(url, json={"human_info": req_body.__dict__})
+        return response.json()['response']
+
 
 if __name__ == '__main__':
-    print(BackendApi.generate_epitaph_yandex('Иван', '12.12.1982', '12.12.1983'))
-
+    print(GptAPI.generate_epitaph_yandex('Иван', '12.12.1982', '12.12.1983'))
