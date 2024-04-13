@@ -12,6 +12,7 @@ func setupV1Router(app *fiber.Router) {
 	(*app).Get("/:id", getHandler)
 	(*app).Post("/", postHandler)
 	(*app).Delete("/:id", deleteHandler)
+	(*app).Delete("prefix/:id", deletePrefixHandler)
 
 }
 
@@ -67,6 +68,26 @@ func deleteHandler(c fiber.Ctx) error {
 	}
 
 	err := storage.KeyValueStore.Delete(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"key": id,
+	})
+}
+
+func deletePrefixHandler(c fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "missing id",
+		})
+	}
+
+	err := storage.KeyValueStore.DeleteSubtree(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),

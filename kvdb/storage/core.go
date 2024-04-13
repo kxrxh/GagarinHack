@@ -3,8 +3,10 @@ package storage
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 type KeyValueStorage struct {
@@ -44,8 +46,6 @@ func (kv *KeyValueStorage) loadFromDisk() error {
 		return errors.New("unable to unmarshal file")
 	}
 
-
-
 	return nil
 }
 
@@ -67,7 +67,7 @@ func (kv *KeyValueStorage) SaveToDisk() error {
 
 // Get retrieves the value for a given key.
 func (kv *KeyValueStorage) Get(key string) (string, bool) {
-	
+
 	value, ok := kv.data[key]
 	return value, ok
 }
@@ -78,12 +78,42 @@ func (kv *KeyValueStorage) Set(key, value string) {
 	kv.SaveToDisk()
 }
 
-// Delete deletes the value for a given key.
+// Delete deletes the value for a given key and all its variants.
 func (kv *KeyValueStorage) Delete(key string) error {
+	deleted := kv.DeleteSubtree(key)
+	
 	if _, ok := kv.data[key]; !ok {
+		if deleted == nil {
+			return nil
+		}
 		return errors.New("key does not exist")
 	}
 	delete(kv.data, key)
+
 	kv.SaveToDisk()
+
+	return nil
+}
+
+func (kv *KeyValueStorage) DeleteSubtree(key string) error {
+	deleted := false
+
+	// Iterate over the keys in kv.data
+	for k := range kv.data {
+		// Check if the key starts with the specified prefix
+		if strings.HasPrefix(k, fmt.Sprintf("%s.", key)) {
+			// Delete the key
+			delete(kv.data, k)
+			deleted = true
+		}
+	}
+	// If no keys were deleted, return an error
+	if !deleted {
+		return errors.New("key or its variants do not exist")
+	}
+
+	// Save the updated data to disk
+	kv.SaveToDisk()
+
 	return nil
 }
