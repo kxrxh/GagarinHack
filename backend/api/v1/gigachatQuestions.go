@@ -82,13 +82,14 @@ func gigachatGenerateQuestions(c *fiber.Ctx) error {
 		zap.S().Debugln(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
-
 	questionRegex := regexp.MustCompile(`^\d*\.?\s*([А-Я].*\?)$`)
+	numberDotRegex := regexp.MustCompile(`^\d+\.\s*`)
 
 	var questions []string
 	for _, line := range strings.Split(data.Choices[0].Message.Content, "\n") {
 		if questionRegex.MatchString(line) {
-			questions = append(questions, line)
+			cleanLine := numberDotRegex.ReplaceAllString(line, "") // Remove the number and dot at the beginning
+			questions = append(questions, cleanLine)
 		}
 	}
 

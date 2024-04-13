@@ -30,14 +30,14 @@ func CreateApi(address, port string) *Api {
 	}
 
 	app := fiber.New()
-	// prom := prometheusMiddleware(app)
+	prom := prometheusMiddleware(app)
 	app.Use(cors.New(cors.Config{
-		AllowHeaders:     "Origin, Authorization,Content-Type,Origin,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin",
-		AllowOrigins:     "https://themixadev.github.io, http://localhost",
+		AllowHeaders:     "Authorization,Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin",
+		AllowOrigins:     "http://localhost:5173",
 		AllowCredentials: true,
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
 	}))
-	// app.Use(prom.Middleware)
+	app.Use(prom.Middleware)
 
 	return &Api{appAddress: address, appPort: port, app: app}
 }

@@ -86,11 +86,13 @@ func yandexQuestions(c *fiber.Ctx) error {
 	}
 
 	questionRegex := regexp.MustCompile(`^\d*\.?\s*([А-Я].*\?)$`)
+	numberDotRegex := regexp.MustCompile(`^\d+\.\s*`)
 
 	var questions []string
 	for _, line := range strings.Split(data.Result.Alternatives[0].Message.Text, "\n") {
 		if questionRegex.MatchString(line) {
-			questions = append(questions, line)
+			cleanLine := numberDotRegex.ReplaceAllString(line, "") // Remove the number and dot at the beginning
+			questions = append(questions, cleanLine)
 		}
 	}
 
