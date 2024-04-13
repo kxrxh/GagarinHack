@@ -2,9 +2,6 @@ package v1
 
 import (
 	"github.com/gofiber/fiber/v2"
-
-	// "github.com/gagarin/backend/api/auth"
-	"github.com/gagarin/backend/utils"
 )
 
 func SetupRoutesV1(v1 *fiber.Router) {
@@ -14,8 +11,14 @@ func SetupRoutesV1(v1 *fiber.Router) {
 	completion := api.Group("/completion")
 	completion.Post("/yandex", yandexCompletion)
 
-	completion.Use("/gigachat", getAccessToken)
+	completion.Use(getAccessToken)
 	completion.Post("/gigachat", gigachatCompletion)
 
-	(*v1).Use(utils.Redirect)
+	external := api.Group("/external")
+	external.Use(getApiAccessToken)
+	external.Post("/get-access-token", login)
+	external.Post("/relative", connectPageToRelative)
+	external.Get("/individual-pages", connectPageToRelative)
+
+	// (*v1).Use(utils.Redirect)
 }

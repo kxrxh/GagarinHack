@@ -29,7 +29,7 @@ func yandexCompletion(c *fiber.Ctx) error {
 	apiKey := viper.GetString("yandex.api_key")
 	folderId := viper.GetString("yandex.folder_id")
 
-	var requestBody requestBody
+	var requestBody RequestBody
 
 	if err := c.BodyParser(&requestBody); err != nil {
 		zap.S().Debugln(err)

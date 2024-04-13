@@ -15,10 +15,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type accessTokenResponse struct {
-	AccessToken string `json:"access_token"`
-}
-
 type completionRequest struct {
 	Model             string  `json:"model"`
 	Temperature       float64 `json:"temperature"`
@@ -59,21 +55,21 @@ func getAccessToken(c *fiber.Ctx) error {
 	}
 	defer resp.Body.Close()
 
-	var accessTokenResponse accessTokenResponse
+	var accessTokenResponse AccessTokenResponse
 	if err := json.NewDecoder(resp.Body).Decode(&accessTokenResponse); err != nil {
 		return err
 	}
 
-	c.Locals("access_token", accessTokenResponse.AccessToken)
+	c.Locals("sber_access_token", accessTokenResponse.AccessToken)
 	return c.Next()
 }
 
 func gigachatCompletion(c *fiber.Ctx) error {
-	accessToken := c.Locals("access_token").(string)
+	accessToken := c.Locals("sber_access_token").(string)
 
 	baseUrl := viper.GetString("gigachat.baseUrl")
 
-	var requestBody requestBody
+	var requestBody RequestBody
 
 	if err := c.BodyParser(&requestBody); err != nil {
 		zap.S().Debugln(err)

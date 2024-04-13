@@ -1,14 +1,15 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/ansrivas/fiberprometheus/v2"
+	v1 "github.com/gagarin/backend/api/v1"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"go.uber.org/zap"
-
 	// "github.com/gagarin/backend/api/auth"
-	v1 "github.com/gagarin/backend/api/v1"
 )
 
 type Api struct {
@@ -24,14 +25,14 @@ func CreateApi(address, port string) *Api {
 	}
 
 	app := fiber.New()
-	prom := prometheusMiddleware(app)
+	// prom := prometheusMiddleware(app)
 	app.Use(cors.New(cors.Config{
-		AllowHeaders:     "Authorization,Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin",
-		AllowOrigins:     "http://localhost:5173",
+		AllowHeaders:     "Origin, Authorization,Content-Type,Origin,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin",
+		AllowOrigins:     "https://github.com",
 		AllowCredentials: true,
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
 	}))
-	app.Use(prom.Middleware)
+	// app.Use(prom.Middleware)
 
 	return &Api{appAddress: address, appPort: port, app: app}
 }
@@ -63,6 +64,6 @@ func (api *Api) ConfigureApp() *Api {
 
 // Run starts the API server on the given address and port
 func (api *Api) Run() {
-	zap.S().Debugln("Listening on " + api.appAddress + ":" + api.appPort)
-	api.app.Listen(api.appAddress + ":" + api.appPort)
+	zap.S().Debugln(fmt.Sprintf("Starting server on %s:%s", api.appAddress, api.appPort))
+	api.app.Listen(fmt.Sprintf("%s:%s", api.appAddress, api.appPort))
 }
