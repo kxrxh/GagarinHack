@@ -13,7 +13,32 @@ import VueDatePicker from '@vuepic/vue-datepicker';
             <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                 <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center">Страница памяти</h1>
-                    <div v-if="stage == STAGE.SETUP" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                    <div v-if="stage == STAGE.SETUP_STARTER" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                      <UILabeledInput
+                        type="text"
+                        v-model="author">
+                        Введите ваше ФИО (автор эпитафии)
+                      </UILabeledInput>
+                      <UIButton classExtension="w-full py-2.5" @click="changeStage(STAGE.SETUP_PERSON)" :disabled="author.length < 1">
+                        Продолжить
+                      </UIButton>
+                    </div>
+                    <div v-if="stage == STAGE.SETUP_PERSON" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                      <div>
+                        <UILabel>
+                          Укажите пол
+                        </UILabel>
+                        <UIDropdown
+                          v-model="sex"
+                          :options='{"мужского": "Мужской", "женского": "Женский"}'>
+                          Пол не выбран
+                        </UIDropdown>
+                      </div>
+                      <UILabeledInput
+                        type="text"
+                        v-model="name">
+                        Введите ФИО
+                      </UILabeledInput>
                       <div>
                         <UILabel>
                           Выберите дату рождения
@@ -47,22 +72,64 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                           class="!mt-0"
                           input-class-name="dp-custom-input"></VueDatePicker>
                       </div>
-                      <div>
-                        <UILabel>
-                          Выберите пол
-                        </UILabel>
-                        <UIDropdown
-                          v-model="sex"
-                          :options='{"мужского": "Мужской", "женского": "Женский"}'>
-                          Пол не выбран
-                        </UIDropdown>
-                      </div>
+                      <UIButton classExtension="w-full py-2.5" @click="changeStage(STAGE.SETUP_PLACES)" :disabled="name.length < 1">
+                        Продолжить
+                      </UIButton>
+                    </div>
+                    <div v-if="stage == STAGE.SETUP_PLACES" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
                       <UILabeledInput
                         type="text"
-                        v-model="name">
-                        Введите ФИО
+                        v-model="places[0]">
+                        Введите место рождения
                       </UILabeledInput>
-                      <UIButton classExtension="w-full py-2.5" @click="next" :disabled="name.length < 1">
+                      <UILabeledInput
+                        type="text"
+                        v-model="places[1]">
+                        Введите место смерти
+                      </UILabeledInput>
+                      <UIButton classExtension="w-full py-2.5" @click="changeStage(STAGE.SETUP_RELATIVES)" :disabled="places[0].length < 1 || places[1].length < 1">
+                        Продолжить
+                      </UIButton>
+                    </div>
+                    <div v-if="stage == STAGE.SETUP_RELATIVES" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                      <UILabeledInput
+                        type="text"
+                        v-model="partner">
+                        Укажите {{ sex == "мужского" ? "супругу" : "супруга" }} (при наличии)
+                      </UILabeledInput>
+                      <UILabeledInput
+                        type="text"
+                        :textarea="true"
+                        v-model="children">
+                        Укажите детей (при наличии)
+                      </UILabeledInput>
+                      <UIButton classExtension="w-full py-2.5" @click="changeStage(STAGE.SETUP_EDUCATION)">
+                        Продолжить
+                      </UIButton>
+                    </div>
+                    <div v-if="stage == STAGE.SETUP_EDUCATION" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                      <UILabeledInput
+                        type="text"
+                        v-model="citizenship">
+                        Укажите гражданство
+                      </UILabeledInput>
+                      <UILabeledInput
+                        type="text"
+                        v-model="education">
+                        Укажите образование
+                      </UILabeledInput>
+                      <UILabeledInput
+                        type="text"
+                        v-model="career">
+                        Укажите род деятельности
+                      </UILabeledInput>
+                      <UILabeledInput
+                        type="text"
+                        :textarea="true"
+                        v-model="achievments">
+                        Награды, премии, достижения
+                      </UILabeledInput>
+                      <UIButton classExtension="w-full py-2.5" @click="next" :disabled="citizenship.length < 1">
                         Продолжить
                       </UIButton>
                     </div>
@@ -109,7 +176,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                         v-model="results[0]">
                         Предложенная эпитафия №1:
                       </UILabeledInput>
-                      <UIButton classExtension="w-full py-2.5" @click="finish">
+                      <UIButton classExtension="w-full py-2.5" @click="acceptEpitaphy(0)">
                         Принять первую эпитафию
                       </UIButton>
                       <UILabeledInput
@@ -119,9 +186,91 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                         v-model="results[1]">
                         Предложенная эпитафия №2:
                       </UILabeledInput>
-                      <UIButton classExtension="w-full py-2.5" @click="finish">
+                      <UIButton classExtension="w-full py-2.5" @click="acceptEpitaphy(1)">
                         Принять вторую эпитафию
                       </UIButton>
+                    </div>
+                    <div v-if="stage == STAGE.PROMPT_BIOGRAPHY" class="space-y-2 md:space-y-4 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
+                      <UILabel>
+                        Хотите ли вы создать биографию {{ name }}?
+                      </UILabel>
+                      <div class="grid gap-2 mb-2 grid-cols-2">
+                        <UIButton color="danger" classExtension="py-2.5" @click="finish">
+                          Нет
+                        </UIButton>
+                        <UIButton classExtension="py-2.5" @click="changeStage(STAGE.SELECT_BIOGRAPHY)">
+                          Да
+                        </UIButton>
+                      </div>
+                    </div>
+                    <div v-if="stage == STAGE.SELECT_BIOGRAPHY" class="space-y-2 md:space-y-4 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
+                      <UILabel>
+                        До какого периода вы хотите создать биографию?
+                      </UILabel>
+                      <UIButton classExtension="py-2.5" @click="selectBiography(1)">
+                        До детства/юношества (Одна часть)
+                      </UIButton>
+                      <UIButton classExtension="py-2.5" @click="selectBiography(2)">
+                        До средних лет (Две части)
+                      </UIButton>
+                      <UIButton classExtension="py-2.5" @click="selectBiography(3)">
+                        До старости (Три части)
+                      </UIButton>
+                    </div>
+                    <div v-if="stage == STAGE.BIOGRAPHY_QUESTION" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                      <UILabel>
+                        {{ biography[biographyIndex].stage }}
+                      </UILabel>
+                      <UILabeledInput
+                        type="text"
+                        class="animate animate-fade animate-ease-in-out animate-duration-350 animate-once"
+                        v-model="biography[biographyIndex].answers[index]">
+                        {{ biography[biographyIndex].questions[index] }}
+                      </UILabeledInput>
+                      <UIButton classExtension="w-full py-2.5" @click="next" :disabled="biography[biographyIndex].answers[index].length < 1">
+                        Продолжить
+                      </UIButton>
+                      <p class="text-sm font-light text-gray-500 dark:text-gray-400 text-center !mt-4">
+                          <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="skip">
+                            Пропустить вопрос<br><br>
+                          </a>
+                          <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500" @click="back" v-if="index != 0">
+                            Вернуться на предыдущий
+                          </a>
+                      </p>
+                    </div>
+                    <div v-if="stage == STAGE.BIOGRAPHY_CREATION" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
+                      Создание биографии...<br>
+                      <span class="loader"></span>
+                    </div>
+                    <div v-if="stage == STAGE.VIEW_BIOGRAPHY" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                      <div class="grid gap-2 mb-2 grid-cols-2">
+                        <UIButton color="warning" classExtension="py-2.5" @click="regenerateBiography">
+                          Перегенерировать
+                        </UIButton>
+                        <UIButton color="danger" classExtension="py-2.5" @click="changeStage(STAGE.PROMPT_BIOGRAPHY)">
+                          Сбросить
+                        </UIButton>
+                        <UILabel>
+                          Предложенная биография
+                        </UILabel>
+                        <div v-for="index in biography" :key="biography[index].stage" v-if="biography[index].header.length > 0">
+                          <UILabeledInput
+                            type="text"
+                            v-model="biography[index].header">
+                            Заголовок:
+                          </UILabeledInput>
+                          <UILabeledInput
+                            :textarea="true"
+                            type="text"
+                            v-model="biography[index].text">
+                            Текст:
+                          </UILabeledInput>
+                        </div>
+                        <UIButton classExtension="w-full py-2.5" @click="acceptBiography">
+                          Принять биографию
+                        </UIButton>
+                      </div>
                     </div>
                 </div>
             </div>
@@ -133,10 +282,19 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import { MemoryService } from '@/services/MemoryService';
 const MODEL = "gigachat";
 const STAGE = {
-  SETUP: 100,
+  SETUP_STARTER: 1,
+  SETUP_PERSON: 2,
+  SETUP_PLACES: 3,
+  SETUP_RELATIVES: 4,
+  SETUP_EDUCATION: 5,
   QUESTION: 101,
   CREATION: 102,
-  VIEW: 103
+  VIEW: 103,
+  PROMPT_BIOGRAPHY: 200,
+  SELECT_BIOGRAPHY: 201,
+  BIOGRAPHY_QUESTION: 202,
+  BIOGRAPHY_СREATION: 203,
+  VIEW_BIOGRAPHY: 204
 }
 export default {
     name: "MainView",
@@ -145,29 +303,70 @@ export default {
     },
     data() {
       return {
-        index: 0,
-        dates: [new Date(), new Date()],
-        name: "",
+        author: "",
         sex: "мужского",
+        name: "",
+        dates: [new Date(), new Date()],
+        places: ["", ""],
+        partner: "",
+        children: "",
+        citizenship: "Россия",
+        education: "",
+        career: "",
+        achievments: "",
+
+        index: 0,
         questions: [],
         answers: [],
         results: ["", ""],
-        stage: STAGE.SETUP,
-        unskip: [0]
+        stage: STAGE.SETUP_STARTER,
+        unskip: [0],
+
+        epitaphy: "",
+        biographyIndex: 0,
+        maxBiography: 0,
+        biography: [
+          {
+            stage: "Детство и юношество",
+            questions: [],
+            answers: [],
+            header: "",
+            text: ""
+          },
+          {
+            stage: "Средние годы",
+            questions: [],
+            answers: [],
+            header: "",
+            text: ""
+          },
+          {
+            stage: "Последние годы",
+            questions: [],
+            answers: [],
+            header: "",
+            text: ""
+          }
+        ],
+        ending: "",
+        useBiography: false
       }
     },
     methods: {
-      next() {
-        if(this.stage == STAGE.SETUP) {
-          this.stage = STAGE.AWAIT_QUESTION;
-          MemoryService.getQuestions(MODEL, this.name, this.sex, this.dates[0], (data) => {
+      getQuestions() {
+        MemoryService.getQuestions(MODEL, this.name, this.sex, this.dates[0], (data) => {
             this.questions = data.response;
             this.answers = Array.from({ length: this.questions.length }).fill("");
             this.stage = STAGE.QUESTION;
           }, (err) => {
             // TODO handle error
             debugger;
-          })
+          });
+      },
+      next() {
+        if(this.stage != STAGE.QUESTION) {
+          this.stage = STAGE.AWAIT_QUESTION;
+          this.getQuestions();
           return;
         }
         this.index++;
@@ -182,15 +381,28 @@ export default {
         this.index--;
       },
       checkEnd() {
-        if(this.index >= this.questions.length) {
+        if(this.maxBiography != 0) {
+          if(this.index >= this.biography[this.biographyIndex].answers.length) {
+            if(this.biographyIndex < this.maxBiography - 1) {
+              this.biographyIndex++;
+              this.generateBiographyQuestions();
+            } else {
+              this.generateBiographyEnding();
+            }
+          }
+        } else if(this.index >= this.questions.length) {
           this.generate();
         }
       },
-      finish() {
-        // TODO send to bot
+      acceptEpitaphy(index) {
+        this.epitaphy = result[index];
+        this.stage = STAGE.PROMPT_BIOGRAPHY;
       },
       regenerate() {
         this.generate();
+      },
+      changeStage(stage) {
+        this.stage = stage;
       },
       generate() {
         this.stage = STAGE.CREATION;
@@ -223,8 +435,8 @@ export default {
         })
       },
       reset() {
-        this.stage = STAGE.QUESTION;
-        // TODO remove questions and create new
+        this.stage = STAGE.AWAIT_QUESTION;
+        this.getQuestions();
       },
       formatter(date) {
         const day = String(date.getDate()).padStart(2, '0');
@@ -232,6 +444,28 @@ export default {
         const year = date.getFullYear();
 
         return `${day}.${month}.${year}`;
+      },
+      selectBiography(max) {
+        this.maxBiography = max;
+        this.generateBiographyQuestions();
+      },
+      generateBiographyQuestions() {
+        this.stage = STAGE.AWAIT_QUESTION;
+        // TODO
+      },
+      generateBiographyEnding() {
+        this.stage = STAGE.AWAIT_QUESTION;
+        // TODO
+      },
+      regenerateBiography() {
+        // TODO
+      },
+      acceptBiography() {
+        this.useBiography = true;
+        finish();
+      },
+      finish() {
+        // TODO send to backend
       }
     },
     mounted() {
