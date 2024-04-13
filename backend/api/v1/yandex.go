@@ -1,15 +1,12 @@
 package v1
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net"
-	"net/http"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	// Import resty into your code and refer it as `resty`.
+	"github.com/go-resty/resty/v2"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -70,31 +67,20 @@ func yandexCompletion(c *fiber.Ctx) error {
 		},
 	}
 
-	reqBodyBytes, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("POST", "https://llm.api.cloud.yandex.net/foundationModels/v1/completion", bytes.NewBuffer(reqBodyBytes))
-	zap.S().Debugln(fmt.Sprintf("request body: %v", req))
-	req.Header.Set("Authorization", fmt.Sprintf("Api-Key %s", apiKey))
-	req.Header.Set("Content-Type", "application/json")
+	client := resty.New()
+	client.SetTimeout(30 * time.Second)
 
-	client := &http.Client{
-		Transport: &http.Transport{
-			Dial: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ResponseHeaderTimeout: 10 * time.Second,
-			ExpectContinueTimeout: 1 * time.Second,
-		},
-	}
+	resp, err := client.R().
+		SetHeader("Authorization", fmt.Sprintf("Api-Key %s", apiKey)).
+		SetHeader("Content-Type", "application/json").
+		SetBody(reqBody).
+		Post("https://llm.api.cloud.yandex.net/foundationModels/v1/completion")
 
-	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
 
-	defer resp.Body.Close()
+	zap.S().Debugln(fmt.Sprintf("response status: %v", resp.Status()))
 
-	body, _ := io.ReadAll(resp.Body)
-	return c.SendString(string(body))
+	return c.SendString(resp.String())
 }
