@@ -1,5 +1,8 @@
 # Gagarin Hack | MemoryCode Bot
 
+## Demo
+Demo available at [@memorycodehack_bot](https://t.me/memorycodehack_bot). Demo video: [Youtube](https://youtu.be/An_5CITofS8)
+
 ## Introduction
 
 The MemoryCode Bot is an innovative solution designed to streamline the process of filling out memory pages. Traditionally, users are faced with a daunting form containing numerous fields, including complex ones such as epitaphs or biographies. This can be time-consuming and challenging for users, often leading to incomplete or hastily filled-out pages.
@@ -18,7 +21,7 @@ With the MemoryCode Bot, filling out memory pages becomes a seamless and intuiti
 - **User Editing:** Enable users to review and modify generated text, ensuring personalized and meaningful content.
 - **Efficient Form Completion:** Streamline the process of filling out memory pages, enhancing user satisfaction and retention.
 
-## Services
+## Services (including installation guides for each service)
 
 - **Key-Value database** [Folder](/kvdb) | [Documentation](/kvdb/README.md)
 - **Telegram Bot** [Folder](/bot) | [Documentation](/bot/README.md)
