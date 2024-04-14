@@ -27,7 +27,7 @@ services:
     environment:
       STORAGE_URL: http://golang-kvdb:5173/db/v1
       TELEGRAM_API_KEY: 7193262302:AAFadZQ58TP9vGRSV4Gl0fj_GB9KAKQrTCU
-      BACKEND_URL: http://localhost:3033/api/v1/
+      BACKEND_URL: https://gagarinhack-1.onrender.com/api/v1/
     depends_on:
       - golang-kvdb
 
