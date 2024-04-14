@@ -19,7 +19,15 @@ With the MemoryCode Bot, filling out memory pages becomes a seamless and intuiti
 - **Efficient Form Completion:** Streamline the process of filling out memory pages, enhancing user satisfaction and retention.
 
 ## Services
+
 - **Key-Value database** [Folder](/kvdb) | [Documentation](/kvdb/README.md)
-- **Telegram Bot**       [Folder](/bot) | [Documentation](/bot/README.md)
+- **Telegram Bot** [Folder](/bot) | [Documentation](/bot/README.md)
 - **Vue-Fronted** [Folder](/webapp) | [Documentation](/webapp/README.md)
 - **Backend API** [Folder](/backend) | [Documentaion](/backend/README.md)
+
+## Stack
+
+- **Backend API**: Golang + Gofiber
+- **Key-Value database**: Golang
+- **Webapp**: Vue.js
+- **Bot**: Python + pyTelegramBotAPI
