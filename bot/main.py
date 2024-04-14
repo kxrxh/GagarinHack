@@ -48,18 +48,24 @@ class State(str, Enum):
 def create_mode_keyboard():
     web_app_link = telebot.types.WebAppInfo(
         "https://themixadev.github.io/GagarinHackView/")
+    comments = telebot.types.WebAppInfo(
+        "https://themixadev.github.io/GagarinHackView/?path=comment")
 
     keyboard = telebot.types.InlineKeyboardMarkup()
     web_app_link = telebot.types.InlineKeyboardButton(
         "📱 Начать в режиме веб-приложение", web_app=web_app_link)
     start_button = telebot.types.InlineKeyboardButton(
         "🚩 Начать в простом режиме", callback_data="start")
+    comment_button = telebot.types.InlineKeyboardButton(
+        "Оставить комментарий", web_app=comments)
     keyboard.add(web_app_link)
     keyboard.add(start_button)
+    keyboard.add(comment_button)
     return keyboard
 
 
-@bot.message_handler(commands=['start', 'help'])
+
+@ bot.message_handler(commands=['start', 'help'])
 async def start(message):
     KeyValueStorage.set(message.chat.id, State.START.value)
     await bot.send_message(message.chat.id, 'Привет! Я - MemoryCode Бот, ваш помощник в заполнении страницы памяти. Моя задача - сделать процесс заполнения страницы памяти легким и приятным для вас. \
@@ -68,13 +74,22 @@ async def start(message):
                            reply_markup=create_mode_keyboard())
 
 
-@bot.message_handler(func=lambda message: not KeyValueStorage.get(str(message.chat.id)).value)
+# получаем отправленные данные
+@bot.message_handler(content_types=["web_app_data"])
+async def answer(web_app_mes):
+    print(web_app_mes)  # вся информация о сообщении
+    print(web_app_mes.web_app_data.data)  # конкретно то что мы передали в бота
+    await bot.send_message(web_app_mes.chat.id,
+                           f"получили инофрмацию из веб-приложения: {web_app_mes.web_app_data.data}")
+
+
+@ bot.message_handler(func=lambda message: not KeyValueStorage.get(str(message.chat.id)).value)
 async def handle_message(message):
     await bot.send_message(
         message.chat.id, "Выберите команду '/start' или '/help', чтобы начать!")
 
 
-@bot.message_handler(func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.START.value)
+@ bot.message_handler(func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.START.value)
 async def handle_random_message(message):
     keyboard = telebot.types.InlineKeyboardMarkup()
     keyboard.add(telebot.types.InlineKeyboardButton(
@@ -82,7 +97,7 @@ async def handle_random_message(message):
     await bot.reply_to(message, "Если вы хотите начать заполнение данных, нажмите кнопку ниже", reply_markup=keyboard)
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "start")
+@ bot.callback_query_handler(func=lambda call: call.data == "start")
 async def start_callback(call):
     # clear old data
     KeyValueStorage.delete_prefix(call.message.chat.id)
@@ -95,9 +110,9 @@ async def start_callback(call):
                            reply_markup=keyboard)
 
 
-@bot.message_handler(content_types=['text'], func=lambda message:
-                     KeyValueStorage.get(str(message.chat.id)).value == State.SEX.value and
-                     (message.text == "♂️ Мужской" or message.text == "♀️ Женский"))
+@ bot.message_handler(content_types=['text'], func=lambda message:
+                      KeyValueStorage.get(str(message.chat.id)).value == State.SEX.value and
+                      (message.text == "♂️ Мужской" or message.text == "♀️ Женский"))
 async def handle_sex(message):
     # store sex in database
     KeyValueStorage.set(f"{message.chat.id}.sex", message.text[2:])
@@ -108,7 +123,7 @@ async def handle_sex(message):
     await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите фамилию, имя и отчество (при наличии):")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.NAME.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.NAME.value)
 async def handle_name(message):
     # delete repeated whitespaces
     cleaned_string = re.sub(r'\s+', ' ', message.text)
@@ -126,7 +141,7 @@ async def handle_name(message):
     await bot.send_message(message.chat.id, f"Теперь, пожалуйста, укажите когда родился(-ась) {cleaned_string} в формате 'ДД.ММ.ГГГГ' (например, 31.12.1989):")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.BIRTH_DATE.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.BIRTH_DATE.value)
 async def handle_birth_date(message):
     # change format of date, if user input is invalid
     date = message.text.replace('-', '.').replace(' ', '.').replace('/', '.')
@@ -145,7 +160,7 @@ async def handle_birth_date(message):
     await bot.send_message(message.chat.id, "Вы успешно установили поле 'Дата рождения'. Пожалуйста, укажите дату смерти в формате 'ДД.ММ.ГГГГ' (например, 31.12.2020):")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.DEATH_DATE.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.chat.id)).value == State.DEATH_DATE.value)
 async def handle_death_date(message):
     date = message.text.replace('-', '.').replace(' ', '.').replace('/', '.')
 
@@ -181,7 +196,7 @@ async def handle_death_date(message):
                            reply_markup=keyboard)
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("questions_") and KeyValueStorage.get(str(call.from_user.id)).value == State.DEATH_DATE.value)
+@ bot.callback_query_handler(func=lambda call: call.data.startswith("questions_") and KeyValueStorage.get(str(call.from_user.id)).value == State.DEATH_DATE.value)
 async def questions(call: telebot.types.CallbackQuery):
     await bot.delete_message(message_id=call.message.id, chat_id=call.from_user.id)
     chat_id = call.from_user.id
@@ -199,7 +214,7 @@ async def questions(call: telebot.types.CallbackQuery):
     KeyValueStorage.set(call.from_user.id, State.QUESTIONS.value)
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("generate_") and KeyValueStorage.get(str(call.from_user.id)).value == State.DEATH_DATE.value)
+@ bot.callback_query_handler(func=lambda call: call.data.startswith("generate_") and KeyValueStorage.get(str(call.from_user.id)).value == State.DEATH_DATE.value)
 async def generate(call: telebot.types.CallbackQuery):
     await bot.delete_message(message_id=call.message.id, chat_id=call.from_user.id)
     chat_id = int(call.data.split("_")[1])
@@ -223,7 +238,7 @@ async def generate(call: telebot.types.CallbackQuery):
                                 reply_markup=keyboard, chat_id=chat_id, message_id=generation_msg.id)
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("regenerate_"))
+@ bot.callback_query_handler(func=lambda call: call.data.startswith("regenerate_"))
 async def regenerate(call: telebot.types.CallbackQuery):
     obj_type = call.data.split("_")[1]
     chat_id = call.message.chat.id
@@ -249,7 +264,7 @@ async def regenerate(call: telebot.types.CallbackQuery):
         await bot.edit_message_text(text=f"Биография:\n{biography}", reply_markup=keyboard, chat_id=chat_id, message_id=msg_id)
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("accept_"))
+@ bot.callback_query_handler(func=lambda call: call.data.startswith("accept_"))
 async def accept_epitaph(call: telebot.types.CallbackQuery):
     chat_id = call.message.chat.id
     await bot.edit_message_reply_markup(chat_id=chat_id, message_id=call.message.id, reply_markup=None)
@@ -259,7 +274,7 @@ async def accept_epitaph(call: telebot.types.CallbackQuery):
         await bot.send_message(chat_id=chat_id, text="Теперь мне нужна информация об образовании:")
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("edit_"))
+@ bot.callback_query_handler(func=lambda call: call.data.startswith("edit_"))
 async def edit(call: telebot.types.CallbackQuery):
     obj_type = call.data.split("_")[1]
 
@@ -271,7 +286,7 @@ async def edit(call: telebot.types.CallbackQuery):
     await bot.send_message(chat_id=call.message.chat.id, text="Пришли мне новым сообщением свою версию текста и я его сохраню!")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value in [State.EDIT_EPITAPH.value, State.EDIT_BIOGRAPHY.value])
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value in [State.EDIT_EPITAPH.value, State.EDIT_BIOGRAPHY.value])
 async def handle_edited_text(message: telebot.types.Message):
     if KeyValueStorage.get(str(message.from_user.id)).value == State.EDIT_EPITAPH.value:
         KeyValueStorage.set(f"{message.chat.id}.epitaph", message.text)
@@ -284,7 +299,7 @@ async def handle_edited_text(message: telebot.types.Message):
         await bot.send_message(chat_id=message.chat.id, text="Текст был успешно изменен!")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.EDUCATION.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.EDUCATION.value)
 async def handle_education(message):
     # Store education information
     KeyValueStorage.set(f"{message.chat.id}.education", message.text)
@@ -295,7 +310,7 @@ async def handle_education(message):
     await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите место рождения:")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.PLACE_OF_BIRTH.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.PLACE_OF_BIRTH.value)
 async def handle_place_of_birth(message):
     # Store place of birth
     KeyValueStorage.set(f"{message.chat.id}.place_of_birth", message.text)
@@ -306,7 +321,7 @@ async def handle_place_of_birth(message):
     await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите место смерти:")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.PLACE_OF_DEATH.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.PLACE_OF_DEATH.value)
 async def handle_place_of_death(message):
     # Store place of death
     KeyValueStorage.set(f"{message.chat.id}.place_of_death", message.text)
@@ -317,7 +332,7 @@ async def handle_place_of_death(message):
     await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите, были ли у этого человека дети:")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.KIDS.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.KIDS.value)
 async def handle_kids(message):
     # Store kids information
     KeyValueStorage.set(f"{message.chat.id}.kids", message.text)
@@ -328,7 +343,7 @@ async def handle_kids(message):
     await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите гражданство этого человека:")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.CITIZENSHIP.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.CITIZENSHIP.value)
 async def handle_citizenship(message):
     # Store citizenship information
     KeyValueStorage.set(f"{message.chat.id}.citizenship", message.text)
@@ -339,7 +354,7 @@ async def handle_citizenship(message):
     await bot.send_message(message.chat.id, "Наконец, пожалуйста, укажите, были ли у этого человека какие-либо награды или достижения:")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.AWARDS.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.AWARDS.value)
 async def handle_awards(message):
     # Store awards information
     KeyValueStorage.set(f"{message.chat.id}.awards", message.text)
@@ -349,7 +364,7 @@ async def handle_awards(message):
     await bot.send_message(message.chat.id, "Теперь, пожалуйста, укажите, чем этот человек занимался (кем работал):")
 
 
-@bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.WORK.value)
+@ bot.message_handler(content_types=['text'], func=lambda message: KeyValueStorage.get(str(message.from_user.id)).value == State.WORK.value)
 async def handle_work(message):
     KeyValueStorage.set(f"{message.chat.id}.work", message.text)
     await bot.reply_to(message, "Информация о работе сохранена!")
@@ -371,15 +386,15 @@ async def handle_work(message):
 
     person = GenerationRequest(name, sex, birth_date, death_date,
                                {"Кем работал?": message.text, "Какое образование получил человек?": education, "Где родился?": place_of_birth, "Где умер?": place_of_death, "Были ли у этого человека дети?": kids, "Гражданство?": citizenship, "Были ли у этого человека какие-либо награды или достижения?": awards})
-    bio1 = GptAPI.generate_biography_gigachat(person, "youth", "Пустая биография")
+    bio1 = GptAPI.generate_biography_gigachat(
+        person, "youth", "Пустая биография")
     await bot.send_message(message.chat.id, f"Молодось:\n{bio1}")
     bio2 = GptAPI.generate_biography_gigachat(person, "middle_age", bio1)
     await bot.send_message(message.chat.id, f"Средние года:\n{bio2}")
     bio3 = GptAPI.generate_biography_gigachat(person, "old_age", bio2)
     await bot.send_message(message.chat.id, f"Последние года:\n{bio3}")
-    
 
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(bot.infinity_polling())
+    asyncio.run(bot.polling())
