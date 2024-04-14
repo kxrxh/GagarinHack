@@ -10,7 +10,9 @@ export const ExternalService = {
         occupation, awards,
         bio_title1, bio1_text,
         bio_title2, bio2_text,
-        bio_title3, bio3_text, birth, death
+        bio_title3, bio3_text,
+        bioend_text,
+        birth, death
     ) {
         function formatDateToString(date) {
             const year = date.getFullYear();
@@ -21,6 +23,12 @@ export const ExternalService = {
             const seconds = ('0' + date.getSeconds()).slice(-2);
             const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
             return formattedDate;
+        }
+        function formatDate(date) {
+            let day = String(date.getDate()).padStart(2, '0');
+            let month = String(date.getMonth() + 1).padStart(2, '0');
+            let year = date.getFullYear();
+            return { day: day, month: month, year: year };
         }
         return {
             method: 'PUT',
@@ -38,11 +46,13 @@ export const ExternalService = {
                 patronym: null,
                 birthday_at: (formatDateToString(birth)),
                 died_at: (formatDateToString(death)),
+                start: formatDate(birth),
+                end: formatDate(death),
                 epitaph: epitaph,
                 author_epitaph: author_epitaph,
                 page_type_id: 1,
                 slug: 54553748,
-                filled_fields: ['biography_1', 'biography_2', 'end_of_biography', 'epitaph'],
+                filled_fields: ['biography_1', 'biography_2', 'biography_3', 'end_of_biography', 'epitaph'],
                 lastName: lastName,
                 firstName: firstName,
                 link: 'https://mc.dev.rand.agency/page/54553748',
@@ -67,6 +77,13 @@ export const ExternalService = {
                         id: null,
                         title: bio_title3,
                         description: bio3_text,
+                        page_id: 8736,
+                        checked: true
+                    },
+                    {
+                        id: null,
+                        title: "Заключение",
+                        description: bioend_text,
                         page_id: 8736,
                         checked: true
                     }

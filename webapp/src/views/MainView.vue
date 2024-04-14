@@ -244,33 +244,41 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                       <span class="loader"></span>
                     </div>
                     <div v-if="stage == STAGE.VIEW_BIOGRAPHY" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
-                      <div class="grid gap-2 mb-2 grid-cols-2">
-                        <UIButton color="warning" classExtension="py-2.5" @click="regenerateBiography">
-                          Перегенерировать
-                        </UIButton>
-                        <UIButton color="danger" classExtension="py-2.5" @click="changeStage(STAGE.PROMPT_BIOGRAPHY)">
-                          Сбросить
-                        </UIButton>
+                        <div class="grid gap-2 mb-2 grid-cols-2">
+                          <UIButton color="warning" classExtension="py-2.5" @click="generateBiography">
+                            Перегенерировать
+                          </UIButton>
+                          <UIButton color="danger" classExtension="py-2.5" @click="changeStage(STAGE.PROMPT_BIOGRAPHY)">
+                            Сбросить
+                          </UIButton>
+                        </div>
                         <UILabel>
                           Предложенная биография
                         </UILabel>
-                        <div v-for="index in biography" :key="biography[index].stage" v-if="biography[index].header.length > 0">
-                          <UILabeledInput
-                            type="text"
-                            v-model="biography[index].header">
-                            Заголовок:
-                          </UILabeledInput>
+                        <div style="max-height: 50vh; overflow: auto;">
+                          <div v-for="(item, i) in biography" :key="item.stage" :class="[item.header.length < 1 ? 'hidden' : '']">
+                            <UILabeledInput
+                              type="text"
+                              v-model="item.header">
+                              Заголовок:
+                            </UILabeledInput>
+                            <UILabeledInput
+                              :textarea="true"
+                              type="text"
+                              v-model="item.text">
+                              Текст:
+                            </UILabeledInput>
+                          </div>
                           <UILabeledInput
                             :textarea="true"
                             type="text"
-                            v-model="biography[index].text">
-                            Текст:
+                            v-model="biographyEnding">
+                            Заключение:
                           </UILabeledInput>
                         </div>
                         <UIButton classExtension="w-full py-2.5" @click="acceptBiography">
                           Принять биографию
                         </UIButton>
-                      </div>
                     </div>
                     <div v-if="stage == STAGE.APPLYING" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
                       Отправка страницы памяти...<br>
@@ -354,7 +362,7 @@ export default {
             text: ""
           }
         ],
-        ending: "",
+        biographyEnding: "",
         useBiography: false
       }
     },
@@ -370,7 +378,7 @@ export default {
           });
       },
       next() {
-        if(this.stage != STAGE.QUESTION) {
+        if(this.stage != STAGE.QUESTION && this.stage != STAGE.BIOGRAPHY_QUESTION) {
           this.stage = STAGE.AWAIT_QUESTION;
           this.getQuestions();
           return;
@@ -393,7 +401,7 @@ export default {
               this.biographyIndex++;
               this.generateBiographyQuestions();
             } else {
-              this.generateBiographyEnding();
+              this.generateBiography();
             }
           }
         } else if(this.index >= this.questions.length) {
@@ -401,7 +409,7 @@ export default {
         }
       },
       acceptEpitaphy(index) {
-        this.epitaphy = result[index];
+        this.epitaphy = this.results[index];
         this.stage = STAGE.PROMPT_BIOGRAPHY;
       },
       regenerate() {
@@ -426,7 +434,7 @@ export default {
           }
         }
         this.results = ["", ""];
-        MemoryService.getStory(MODEL, "epitaph", this.name, this.sex, this.dates[0], this.dates[1], questions, (data) => {
+        MemoryService.getEpitaph(MODEL, this.name, this.sex, this.dates[0], this.dates[1], questions, (data) => {
           this.results[0] = data.response;
           checkContinue();
         }, (err) => {
@@ -435,7 +443,7 @@ export default {
           checkContinue();
           console.log(err);
         })
-        MemoryService.getStory("yandex", "epitaph", this.name, this.sex, this.dates[0], this.dates[1], questions, (data) => {
+        MemoryService.getEpitaph("yandex", this.name, this.sex, this.dates[0], this.dates[1], questions, (data) => {
           this.results[1] = data.response;
           checkContinue();
         }, (err) => {
@@ -462,18 +470,59 @@ export default {
       },
       generateBiographyQuestions() {
         this.stage = STAGE.AWAIT_QUESTION;
-        // TODO
+        let type = this.biographyIndex == 0 ? "youth" :
+                    (this.biographyIndex == 1 ? "middle_age" : "old_age");
+        MemoryService.getBiographyQuestions(MODEL, type, this.name, this.sex, this.dates[0], (data) => {
+          this.biography[this.biographyIndex].questions = data.response;
+          this.biography[this.biographyIndex].answers = Array.from({ length: this.biography[this.biographyIndex].questions.length }).fill("");
+          this.index = 0;
+          this.stage = STAGE.BIOGRAPHY_QUESTION;
+        }, err => {
+          this.$notify({text:"Не удалось получить вопросы, попробуйте позже.", type: "error"});
+          console.log(err);
+        })
       },
-      generateBiographyEnding() {
-        this.stage = STAGE.AWAIT_QUESTION;
-        // TODO
+      generateNextBiography(i) {
+        if(i == 3) {
+          MemoryService.getBiographyShort(MODEL, this.biography, this.name, this.sex, this.dates[0], this.dates[1], (data) => {
+            this.biographyEnding = data.response;
+            this.stage = STAGE.VIEW_BIOGRAPHY;
+          }, err => {
+            this.$notify({text:"Не удалось сгенерировать заключение биографии, попробуйте позже.", type: "error"});
+            console.log(err);
+          })
+          return;
+        }
+        let questions = {};
+        let amount = 0;
+        for (let j = 0; j < this.biography[i].questions.length; j++) {
+            const question = this.biography[i].questions[j];
+            const answer = this.biography[i].answers[j];
+            if (answer !== "") {
+              questions[question] = answer;
+              amount++;
+            }
+        }
+        if(amount > 0) {
+          let type = i == 0 ? "youth" :
+                  (i == 1 ? "middle_age" : "old_age");
+          MemoryService.getBiography(MODEL, type, this.name, this.sex, this.dates[0], this.dates[1], questions, i == 0 ? "Пустая биография" : this.biography[i - 1].text, (data) => {
+            this.biography[i].header = data.header;
+            this.biography[i].text = data.response;
+            this.generateNextBiography(i + 1);
+          }, err => {
+            this.$notify({text:"Не удалось сгенерировать биографию, попробуйте позже.", type: "error"});
+            console.log(err);
+          })
+        } else this.generateNextBiography(i + 1);
       },
-      regenerateBiography() {
-        // TODO
+      generateBiography() {
+        this.stage = STAGE.BIOGRAPHY_CREATION;
+        this.generateNextBiography(0);
       },
       acceptBiography() {
         this.useBiography = true;
-        finish();
+        this.finish();
       },
       finish() {
         this.stage = STAGE.APPLYING;
@@ -492,12 +541,13 @@ export default {
           this.education,
           this.career,
           this.achievments,
-          this.biography[0].header,
-          this.biography[0].text,
-          this.biography[1].header,
-          this.biography[1].text,
-          this.biography[2].header,
-          this.biography[2].text,
+          this.acceptBiography ? this.biography[0].header : "",
+          this.acceptBiography ? this.biography[0].text : "",
+          this.acceptBiography ? this.biography[1].header : "",
+          this.acceptBiography ? this.biography[1].text : "",
+          this.acceptBiography ? this.biography[2].header : "",
+          this.acceptBiography ? this.biography[2].text : "",
+          this.acceptBiography ? this.biographyEnding : "",
           this.dates[0],
           this.dates[1]
         );

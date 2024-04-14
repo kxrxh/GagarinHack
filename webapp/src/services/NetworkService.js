@@ -18,7 +18,7 @@ export const NetworkService = {
             url: `${configuration.serverUrl}${url}`,
             data: data,
             headers: { 'Content-Type': contentType }
-        });
+        }, success, fail);
     },
     RawRequest(options, success, fail) {
         (async () => {
