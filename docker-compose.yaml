@@ -44,16 +44,16 @@ services:
   ###########
   # Metrics #
   ###########
-  prometheus:
-    build: './monitoring/prometheus'
-    container_name: 'prometheus'
-    ports:
-      - '9090:9090'
-  grafana:
-    build: './monitoring/grafana'
-    container_name: 'grafana'
-    ports:
-      - '3000:3000'
+  # prometheus:
+  #   build: './monitoring/prometheus'
+  #   container_name: 'prometheus'
+  #   ports:
+  #     - '9090:9090'
+  # grafana:
+  #   build: './monitoring/grafana'
+  #   container_name: 'grafana'
+  #   ports:
+  #     - '3000:3000'
 
   ############
   # STORAGES #
