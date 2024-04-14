@@ -53,7 +53,7 @@ import UIDropdown from '../components/ui/UIDropdown.vue';
                             property="words"
                             placeholder="Ты останешься навсегда в моем сердце">
                             Ваши слова
-                            <UIButton @click="generate" :disabled="generating || !this.wrappedPages.hasOwnProperty(this.selectedPage)" classExtension="w-full px-5 py-2.5">
+                            <UIButton @click="generate" :disabled="generating || !wrappedPages?.hasOwnProperty(selectedPage)" classExtension="w-full px-5 py-2.5">
                                 Сгенерировать
                             </UIButton>
                         </UILabeledInput>
@@ -118,7 +118,7 @@ export default {
                             type: "success_comment",
                         }
                     ));
-                useWebApp().close();
+                //useWebApp().close();
             }, err => {
                 this.$notify({text:"Не удалось добавить отзыв, попробуйте позже.", type: "error"});
             })
