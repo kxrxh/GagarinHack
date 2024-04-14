@@ -27,7 +27,7 @@ func gigachatBio(c *fiber.Ctx) error {
 	if requestBody.TypeOfStory == "youth" {
 		USER_PROMPT += USER_PROMPT_BIOGRAPHY + " биографии человека в детстве и юношестве "
 	} else if requestBody.TypeOfStory == "middle_age" {
-		USER_PROMPT += USER_PROMPT_BIOGRAPHY + " биографии человека в средение год а жизни "
+		USER_PROMPT += USER_PROMPT_BIOGRAPHY + " биографии человека в средение года жизни "
 	} else if requestBody.TypeOfStory == "old_age" {
 		USER_PROMPT += USER_PROMPT_BIOGRAPHY + " биографии человека в последние года жизни "
 	} else {
