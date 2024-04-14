@@ -77,7 +77,7 @@ export const ExternalService = {
 		}
 		return {
 			method: 'PUT',
-			url: 'https://mc.dev.rand.agency/api/page/54553748',
+			url: 'https://mc.dev.rand.agency/api/page/'+page.slug,
 			headers: {
 				'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
 				Accept: 'application/json',
