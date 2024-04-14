@@ -20,6 +20,14 @@ export const NetworkService = {
             headers: { 'Content-Type': contentType }
         }, success, fail);
     },
+    AuthRequest(method, url, data, cookies, success, fail) {
+        NetworkService.RawRequest({
+            method: method,
+            url: `${configuration.directUrl}${url}`,
+            data: data,
+            headers: {'Authorization': `Bearer ${cookies.get("token")}`}
+        }, success, fail);
+    },
     DirectRequest(method, url, data, success, fail, contentType = 'application/json') {
         NetworkService.RawRequest({
             method: method,

@@ -65,6 +65,7 @@ export default {
                 return;
             }
             AuthService.login(this.login, this.password, (data) => {
+                this.$notify({text:"Успешная авторизация", type: "success"});
                 let token = data.access_token;
                 this.$cookies.set('token', token, "30d");
                 sessionStorage.setItem("is_auth", true);
@@ -72,10 +73,14 @@ export default {
                         {
                             type: "auth",
                             data: {
-                                token: this.$cookies.get("token")
+                                token: this.$cookies.get("token"),
+                                email: this.login
                             }
                         }
                     ));
+                if(sessionStorage.getItem("fallback")) {
+                    this.$router.push({path: sessionStorage.getItem("fallback")});
+                } else useWebApp().close();
                 return;
             }, (error) => {
                 Object.values(error.response.data.errors).flat().forEach(message => {

@@ -8,18 +8,28 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import VueDatePicker from '@vuepic/vue-datepicker';
 </script>
 <template>
-    <section class="bg-gray-50 dark:bg-gray-900 h-screen">
+    <section class="bg-gray-50 dark:bg-gray-900 h-screen fixed overflow-auto w-screen">
         <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
             <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                 <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center">Страница памяти</h1>
                     <div v-if="stage == STAGE.SETUP_STARTER" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
+                      <div>
+                        <UILabel>
+                          Выберите страницу
+                        </UILabel>
+                        <UIDropdown
+                          v-model="selectedPage"
+                          :options='wrappedPages'>
+                          Страница не выбрана
+                        </UIDropdown>
+                      </div>
                       <UILabeledInput
                         type="text"
                         v-model="author">
                         Введите ваше ФИО (автор эпитафии)
                       </UILabeledInput>
-                      <UIButton classExtension="w-full py-2.5" @click="changeStage(STAGE.SETUP_PERSON)" :disabled="author.length < 1">
+                      <UIButton classExtension="w-full py-2.5" @click="changeStage(STAGE.SETUP_PERSON)" :disabled="author.length < 1 || !wrappedPages.hasOwnProperty(selectedPage)">
                         Продолжить
                       </UIButton>
                     </div>
@@ -163,7 +173,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                     <div v-if="stage == STAGE.VIEW" class="space-y-2 md:space-y-4 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
                       <div class="grid gap-2 mb-2 grid-cols-2">
                         <UIButton color="warning" classExtension="py-2.5" @click="regenerate">
-                          Перегенерировать
+                          Пересоздать
                         </UIButton>
                         <UIButton color="danger" classExtension="py-2.5" @click="reset">
                           Сбросить
@@ -246,7 +256,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                     <div v-if="stage == STAGE.VIEW_BIOGRAPHY" class="space-y-4 md:space-y-6 animate animate-fade animate-ease-in-out animate-duration-250 animate-once">
                         <div class="grid gap-2 mb-2 grid-cols-2">
                           <UIButton color="warning" classExtension="py-2.5" @click="generateBiography">
-                            Перегенерировать
+                            Пересоздать
                           </UIButton>
                           <UIButton color="danger" classExtension="py-2.5" @click="changeStage(STAGE.PROMPT_BIOGRAPHY)">
                             Сбросить
@@ -318,6 +328,10 @@ export default {
     },
     data() {
       return {
+        pages: [],
+        wrappedPages: {},
+        selectedPage: null,
+
         author: "",
         sex: "мужского",
         name: "",
@@ -527,7 +541,16 @@ export default {
       },
       finish() {
         this.stage = STAGE.APPLYING;
+        let page = null;
+        for(let i of this.pages) {
+          if(i.id == this.selectedPage) {
+            page = i;
+            break;
+          }
+        }
         const options = ExternalService.createRequestOptions(
+          page,
+          this.sex == "мужской",
           this.name,
           this.epitaphy,
           this.author,
@@ -558,6 +581,7 @@ export default {
                   type: "success"
               }
           ));
+          useWebApp().close();
         }, err => {
           this.$notify({text:"Не удалось загрузить страницу на сервер, попробуйте позже.", type: "error"});
           console.log(err);
@@ -573,7 +597,29 @@ export default {
       }
     },
     mounted() {
-
+      if(this.$route.query.path)
+        this.$router.push({path: this.$route.query.path});
+      if(!this.$cookies.get("token")) {
+        sessionStorage.setItem("fallback", "/");
+        this.$router.push({path: "auth"});
+      } else {
+        ExternalService.getPages(data => {
+          this.pages = data;
+          this.wrappedPages = data.reduce((acc, obj) => {
+              if (obj.page_type_name === "pageType.full") {
+                  acc[obj.id] = obj.name;
+              }
+              return acc;
+          }, {});
+          console.log(this.wrappedPages);
+        }, err => {
+          this.$notify({text:"Не удалось загрузить страницы, попробуйте позже.", type: "error"});
+          console.log(err);
+          this.$cookies.remove("token");
+          sessionStorage.setItem("fallback", "/");
+          this.$router.push({path: "auth"});
+        }, this.$cookies);
+      }
     }
 }
 </script>
