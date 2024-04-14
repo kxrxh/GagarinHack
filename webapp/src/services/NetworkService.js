@@ -20,6 +20,14 @@ export const NetworkService = {
             headers: { 'Content-Type': contentType }
         }, success, fail);
     },
+    DirectRequest(method, url, data, success, fail, contentType = 'application/json') {
+        NetworkService.RawRequest({
+            method: method,
+            url: `${configuration.directUrl}${url}`,
+            data: data,
+            headers: { 'Content-Type': contentType }
+        }, success, fail);
+    },
     RawRequest(options, success, fail) {
         (async () => {
             let response = await axios(options).catch(fail);

@@ -291,6 +291,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 </template>
 
 <script>
+import { useWebApp } from 'vue-tg';
 import { MemoryService } from '@/services/MemoryService';
 import { ExternalService } from '@/services/ExternalService';
 const MODEL = "gigachat";
@@ -552,7 +553,11 @@ export default {
           this.dates[1]
         );
         ExternalService.sendPage(options, (data) => {
-          debugger;
+          useWebApp().sendData(JSON.stringify(
+              {
+                  type: "success"
+              }
+          ));
         }, err => {
           this.$notify({text:"Не удалось загрузить страницу на сервер, попробуйте позже.", type: "error"});
           console.log(err);

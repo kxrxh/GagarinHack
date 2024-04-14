@@ -10,9 +10,9 @@ export const AuthService = {
      * @param {function} fail - The callback function to be called on failed login.
      */
     login(email, password, success, fail) {
-        NetworkService.ClassicRequest("POST", "v1/external/get-access-token", { email, password, device: "bot-v0.0.1" }, (response) => {
+        NetworkService.DirectRequest("POST", "v1/get-access-token", { email, password, device: "bot-v0.0.1" }, (response) => {
             if(response.data)
-                success(response);
+                success(response.data);
             else fail();
         }, fail)
     },
