@@ -22,6 +22,8 @@ This is a Telegram bot that helps users create a memorial page for a deceased pe
 
 ## Installation
 
+### Manual
+
 1. Clone the repository:
 
    ```
@@ -44,8 +46,17 @@ This is a Telegram bot that helps users create a memorial page for a deceased pe
 4. Run the bot:
 
    ```
-   python bot.py
+   python main.py
    ```
+### Docker Compose
+```
+docker-compose up --build
+```
+*tip: You need to use docker-compose.yml from repo root folde*
+
+*Docker compose will run kvdb and bot instances*
+
+
 
 ## Usage
 
