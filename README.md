@@ -31,5 +31,5 @@ With the MemoryCode Bot, filling out memory pages becomes a seamless and intuiti
 - **Key-Value database**: Golang
 - **Webapp**: Vue.js
 - **Bot**: Python + pyTelegramBotAPI
-- **Deployment**: Docker
+- **Deployment**: Docker + nginx
 - **Monitoring**: Grafana + Prometheus
