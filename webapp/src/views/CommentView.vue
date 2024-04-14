@@ -110,13 +110,13 @@ export default {
 			}
 			MemoryService.getGPT(
 				'gigachat',
-				`Сгенерируй последнее прощание от ${this.relative} ${this.fio}, для умершего человека по имени ${page.name}`,
+				`Сгенерируй последнее прощание от ${this.relative}.`,
 				data => {
 					this.words = data.response;
 					this.generating = false;
 				},
 				err => {
-					this.$notify({ text: 'Не удалось сгенерировать эпитафию с использованием Gigachat, попробуйте позже.', type: 'error' });
+					this.$notify({ text: 'Не удалось сгенерировать слова с использованием Gigachat, попробуйте позже.', type: 'error' });
 					this.generating = false;
 				}
 			);

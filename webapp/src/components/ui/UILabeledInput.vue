@@ -11,6 +11,8 @@ import UILabel from './UILabel.vue';
 			v-if="!textarea"
 			:id="property"
 			:value="modelValue"
+			@keyup.enter="closeKeyboard"
+			ref="inputElement"
 			@input="$emit('update:modelValue', $event.target.value)"
 			:type="type"
 			:name="property"
@@ -61,6 +63,11 @@ export default {
 			default: false
 		}
 	},
-	emits: ['update:modelValue', 'blur']
+	emits: ['update:modelValue', 'blur'],
+	methods: {
+		closeKeyboard() {
+			this.$refs.inputElement.blur();
+		}
+	}
 };
 </script>
