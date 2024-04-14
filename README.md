@@ -22,4 +22,4 @@ With the MemoryCode Bot, filling out memory pages becomes a seamless and intuiti
 - **Key-Value database** [Folder](/kvdb) | [Documentation](/kvdb/README.md)
 - **Telegram Bot**       [Folder](/bot) | [Documentation](/bot/README.md)
 - **Vue-Fronted** [Folder](/webapp) | [Documentation](/webapp/README.md)
-- **Backend API** [Folder](/backend) | [Documentaion](/backend/READM.md)
+- **Backend API** [Folder](/backend) | [Documentaion](/backend/README.md)
