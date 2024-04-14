@@ -1,0 +1,1150 @@
+{
+	"info": {
+		"_postman_id": "9436bcd7-ae48-4196-bb92-26baa4a0e584",
+		"name": "Gagarin Hackathon API documentation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25594891"
+	},
+	"item": [
+		{
+			"name": "GigaChat",
+			"item": [
+				{
+					"name": "list models",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/models",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"models"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat/completions (text)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-ID",
+								"value": "79e41a5f-f180-4c7a-b2d9-393086ae20a1",
+								"description": "По нему можно найти логи запроса",
+								"type": "text"
+							},
+							{
+								"key": "X-Session-ID",
+								"value": "b6874da0-bf06-410b-a150-fd5f9164a0b2",
+								"description": "По нему можно найти логи сессии",
+								"type": "text"
+							},
+							{
+								"key": "X-Client-ID",
+								"value": "b6874da0-bf06-410b-a150-fd5f9164a0b2",
+								"description": "По нему можно найти логи пользователя",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"model\": \"GigaChat:latest\", // идентификатор модели, можно указать конкретную или :latest  для выбора наиболее актуальной\n  \"temperature\": 0.87, // от 0 до 2, чем выше, тем вывод более случайный, не рекомендуетсы использовать совместно c top_p\n  \"top_p\": 0.47, // от 0 до 1, альтернатива параметру temperature, не рекомендуется использовать совместно c temperature\n  \"n\": 1, // от 1 до 4, число вариантов ответов модели\n  \"max_tokens\": 512, // максимальное число токенов для генерации ответов\n  \"repetition_penalty\": 1.07, // количество повторений слов, 1.0 - ни чего не менять, от 0 до 1 повторять уже сказанные слова, от 1 и далее не использовать сказанные слова\n  \"stream\": false, // если true, будут отправляться частичные ответы сообщений\n  \"update_interval\": 0, // интервал в секундах, не чаще которого будут присылаться токены в stream режиме\n  \"messages\": [\n        {\n            \"role\": \"system\", // контекст\n            \"content\": \"Отвечай как научный сотрудник\"\n        },\n        {\n            \"role\": \"user\", // запрос пользователя\n            \"content\": \"Напиши 5 вариантов названий для космической станции\"\n        }\n/* пример с диалогом\n        {\n            \"role\": \"assistant\", // ответ модели\n            \"content\": \"1. МИР 2. ЗЕМЛЯ 3. ЛУНА 4. НОВАЯ ЗЕМЛЯ 5. ПОЛЮС\"\n        },\n        {\n            \"role\": \"user\", // запрос пользователя\n            \"content\": \"А если представить, что они будут на Марсе?\"\n        }\n*/\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/completions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"completions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat/completions (image)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"body = JSON.parse(responseBody)",
+									"pm.collectionVariables.set(\"file_id\", body.choices[0].message.content.match(`img src=\"(.+)\" fuse=\"true\"`)[1])"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-ID",
+								"value": "79e41a5f-f180-4c7a-b2d9-393086ae20a1",
+								"description": "По нему можно найти логи запроса",
+								"type": "text"
+							},
+							{
+								"key": "X-Session-ID",
+								"value": "b6874da0-bf06-410b-a150-fd5f9164a0b2",
+								"description": "По нему можно найти логи сессии",
+								"type": "text"
+							},
+							{
+								"key": "X-Client-ID",
+								"value": "b6874da0-bf06-410b-a150-fd5f9164a0b2",
+								"description": "По нему можно найти логи пользователя",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"model\": \"GigaChat:latest\", // идентификатор модели, можно указать конкретную или :latest  для выбора наиболее актуальной\n  \"temperature\": 0.87, // от 0 до 2, чем выше, тем вывод более случайный, не рекомендуетсы использовать совместно c top_p\n  \"top_p\": 0.47, // от 0 до 1, альтернатива параметру temperature, не рекомендуется использовать совместно c temperature\n  \"n\": 1, // от 1 до 4, число вариантов ответов модели\n  \"max_tokens\": 512, // максимальное число токенов для генерации ответов\n  \"repetition_penalty\": 1.07, // количество повторений слов, 1.0 - ни чего не менять, от 0 до 1 повторять уже сказанные слова, от 1 и далее не использовать сказанные слова\n  \"stream\": false, // если true, будут отправляться частичные ответы сообщений\n  \"update_interval\": 0, // интервал в секундах, не чаще которого будут присылаться токены в stream режиме\n  \"messages\": [\n        {\n            \"role\": \"system\", // контекст\n            \"content\": \"Если тебя просят создать изображение, ты должен сгенерировать специальный блок: <fuse>text2image(query: str, style: str)</fuse>,\\nгде query — текстовое описание желаемого изображения, style — опциональный параметр, управляющий стилем генерации.\"\n        },\n        {\n            \"role\": \"user\", // запрос пользователя\n            \"content\": \"Нарисуй слона\"\n        }\n/* пример с диалогом\n        {\n            \"role\": \"assistant\", // ответ модели\n            \"content\": \"1. МИР 2. ЗЕМЛЯ 3. ЛУНА 4. НОВАЯ ЗЕМЛЯ 5. ПОЛЮС\"\n        },\n        {\n            \"role\": \"user\", // запрос пользователя\n            \"content\": \"А если представить, что они будут на Марсе?\"\n        }\n*/\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/completions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"completions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "files/{file_id}/content",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/files/{{file_id}}/content",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"files",
+								"{{file_id}}",
+								"content"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tokens/count",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-ID",
+								"value": "79e41a5f-f180-4c7a-b2d9-393086ae20a1",
+								"description": "По нему можно найти логи запроса",
+								"type": "text"
+							},
+							{
+								"key": "X-Session-ID",
+								"value": "b6874da0-bf06-410b-a150-fd5f9164a0b2",
+								"description": "По нему можно найти логи сессии",
+								"type": "text"
+							},
+							{
+								"key": "X-Client-ID",
+								"value": "b6874da0-bf06-410b-a150-fd5f9164a0b2",
+								"description": "По нему можно найти логи пользователя",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"GigaChat\",\n    \"input\": [\n        \"Я к вам пишу — чего же боле?\",\n        \"Что я могу еще сказать?\",\n        \"Теперь, я знаю, в вашей воле\",\n        \"Меня презреньем наказать.\",\n        \"Но вы, к моей несчастной доле\",\n        \"Хоть каплю жалости храня,\",\n        \"Вы не оставите меня.\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tokens/count",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tokens",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "embeddings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"Embeddings\",\n    \"input\": [\n        \"Расскажи о современных технологиях\",\n        \"Какие новинки в мире IT?\"\n    ]\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/embeddings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"embeddings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get access_token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"body = JSON.parse(responseBody)",
+									"pm.collectionVariables.set(\"access_token\", body.access_token)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "RqUID",
+								"value": "6f0b1291-c7f3-43c6-bb2e-9f3efb2dc98e",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "scope",
+									"value": "{{scope}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{authUrl}}",
+							"host": [
+								"{{authUrl}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "GigaChat API - мультимодальная нейросетевая модель. Умеет отвечать на вопросы, вести диалог и писать код\n\nДля начала использования в личном кабинете:\n\n1. Создайте проект GigChat API\n    \n2. В созданном проекте GigaChat API:\n    \n    1. сгенерируйте _**Client Secret**_ и скопируйте значение поля _**Авторизационные данные**_\n        \n    2. скопируйте значение поля _**Scope**_ (GIGACHAT_API_PERS или GIGACHAT_API_CORP)\n        \n\nВ интерфейсе Postman:\n\n1. Скопируйте коллекцию, для этого нажмите на названии коллекции правой кнопкой мыши и выберите _**Create a fork**_\n    \n2. Перейдите на вкладку _**Variables**_,\n    \n    1. в поле _**Current value**_ переменной _**credentials**_ введите авторизационные данные\n        \n    2. в поле _**Current value**_ переменной _**scope**_ проверьте указанное значение и при необходимости скорректируйте\n        \n3. Нажмите _**Save**_\n    \n4. Выберите запрос _**get access_token**_ и нажмите _**Send**_, в ответ вы получите токен, он автоматически запишется в переменную и будет действовать 30 минут\n    \n5. Совершайте запросы с помощью **POST chat/completions**"
+		},
+		{
+			"name": "Yandex",
+			"item": [
+				{
+					"name": "v1/completion",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "Api-Key {{yandex_api_key}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "Authorization",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"modelUri\": \"gpt://{{yandex_folder_id}}/yandexgpt-lite\",\n  \"completionOptions\": {\n    \"stream\": false,\n    \"temperature\": 0,\n    \"maxTokens\": \"20\"\n  },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"text\": \"Ты — опытный копирайтер. Напиши маркетинговый текст с учётом вида текста и заданной темы.\"\n    },\n    {\n      \"role\": \"user\",\n      \"text\": \"Вид текста: пост в телеграмме. Тема: преимущества YandexGPT в копирайтинге.\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://llm.api.cloud.yandex.net/foundationModels/v1/completion",
+							"protocol": "https",
+							"host": [
+								"llm",
+								"api",
+								"cloud",
+								"yandex",
+								"net"
+							],
+							"path": [
+								"foundationModels",
+								"v1",
+								"completion"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Идентификатор папки:\n\n`b1g5og37bgh1ghh2s2qc`\n\nИдентификатор ключа:\n\n`ajekjom0m5ghuv5e7uml`\n\nВаш секретный ключ:\n\n`AQVN1J4sCxYR98rj-tVppyp6gXQthbdmYvmgtO7a`"
+		},
+		{
+			"name": "MemoryCode",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://{{base_api_url}}/api/v1/login?email={{api_email}}&phone={{api_phone}}&password={{api_password}}",
+							"protocol": "https",
+							"host": [
+								"{{base_api_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{api_email}}",
+									"description": "email or phone required"
+								},
+								{
+									"key": "phone",
+									"value": "{{api_phone}}",
+									"description": "email or phone required"
+								},
+								{
+									"key": "password",
+									"value": "{{api_password}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Login Response #1",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "https://{{baseUrl}}/api/v1/login?email=fuga&phone=natus&password=dignissimos",
+									"protocol": "https",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"login"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "fuga",
+											"description": "email or phone required"
+										},
+										{
+											"key": "phone",
+											"value": "natus",
+											"description": "email or phone required"
+										},
+										{
+											"key": "password",
+											"value": "dignissimos"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "null"
+						},
+						{
+							"name": "Login Response #2",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "https://{{baseUrl}}/api/v1/login?email=fuga&phone=natus&password=dignissimos",
+									"protocol": "https",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"login"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "fuga",
+											"description": "email or phone required"
+										},
+										{
+											"key": "phone",
+											"value": "natus",
+											"description": "email or phone required"
+										},
+										{
+											"key": "password",
+											"value": "dignissimos"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"error\": \"E-mail \\u0438\\u043b\\u0438 \\u043f\\u0430\\u0440\\u043e\\u043b\\u044c \\u0443\\u043a\\u0430\\u0437\\u0430\\u043d\\u044b \\u043d\\u0435\\u0432\\u0435\\u0440\\u043d\\u043e\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Search page",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/v1/page?search=id&token=fugit",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"page"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "id"
+								},
+								{
+									"key": "token",
+									"value": "fugit"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Search page Response #1",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "https://{{baseUrl}}/api/v1/page?search=id&token=fugit",
+									"protocol": "https",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"page"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "id"
+										},
+										{
+											"key": "token",
+											"value": "fugit"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"name\": \"\\u041d\\u0438\\u043a\\u0443\\u043b\\u0438\\u043d \\u042e\\u0440\\u0438\\u0439 \\u0412\\u043b\\u0430\\u0434\\u0438\\u043c\\u0438\\u0440\\u043e\\u0432\\u0438\\u0447\",\n            \"birthday_at\": \"1921-12-18 12:00:00\",\n            \"died_at\": \"1997-08-21 12:00:00\",\n            \"epitaph\": \"\\u0418 \\u0432 \\u043e\\u0431\\u0440\\u0430\\u0437\\u0435 \\u043a\\u043b\\u043e\\u0443\\u043d\\u0430 \\u042e\\u0440\\u0438\\u043a\\u0430, \\u0438 \\u0432 \\u043e\\u0431\\u0440\\u0430\\u0437\\u0435 \\u043c\\u0430\\u0439\\u043e\\u0440\\u0430 \\u041b\\u043e\\u043f\\u0430\\u0442\\u0438\\u043d\\u0430 \\u0438\\u043b\\u0438 \\u0421\\u0435\\u043c\\u0435\\u043d\\u0430 \\u0421\\u0435\\u043c\\u0435\\u043d\\u043e\\u0432\\u0438\\u0447\\u0430 \\u043e\\u043d \\u0438\\u0433\\u0440\\u0430\\u043b \\u0441\\u0430\\u043c\\u043e\\u0433\\u043e \\u0441\\u0435\\u0431\\u044f \\u2013 \\u043a\\u0430\\u043a \\u0431\\u044b \\u043e\\u043d \\u043f\\u043e\\u0441\\u0442\\u0443\\u043f\\u0438\\u043b, \\u043e\\u043a\\u0430\\u0436\\u0438\\u0441\\u044c \\u0432 \\u0442\\u0430\\u043a\\u0438\\u0445 \\u043e\\u0431\\u0441\\u0442\\u043e\\u044f\\u0442\\u0435\\u043b\\u044c\\u0441\\u0442\\u0432\\u0430\\u0445. \\u042d\\u0442\\u043e \\u0432\\u044b\\u0441\\u0448\\u0430\\u044f \\u0441\\u0442\\u0435\\u043f\\u0435\\u043d\\u044c \\u0430\\u043a\\u0442\\u0435\\u0440\\u0441\\u043a\\u043e\\u0433\\u043e \\u0434\\u0430\\u0440\\u043e\\u0432\\u0430\\u043d\\u0438\\u044f. \\u041d\\u0435 \\u0438\\u0433\\u0440\\u0430\\u0442\\u044c \\u0440\\u043e\\u043b\\u0438, \\u0430 \\u0436\\u0438\\u0442\\u044c \\u0438\\u043c\\u0438. \\u0412\\u043e\\u0442 \\u043e\\u043d \\u2013 \\u0436\\u0438\\u043b\",\n            \"url\": \"https:\\/\\/memorycode.ru\\/page\\/55006294\",\n            \"image\": {\n                \"865\": 1343,\n                \"url\": \"https:\\/\\/src.memorycode.ru\\/storage\\/app\\/public\\/865\\/media-libraryyiTbiv\"\n            }\n        }\n    ],\n    \"links\": {\n        \"first\": \"https:\\/\\/memorycode.ru\\/api\\/v1\\/page?page=1\",\n        \"last\": \"https:\\/\\/memorycode.ru\\/api\\/v1\\/page?page=1\",\n        \"prev\": null,\n        \"next\": null\n    },\n    \"meta\": {\n        \"current_page\": 1,\n        \"from\": 1,\n        \"last_page\": 1,\n        \"links\": [\n            {\n                \"url\": null,\n                \"label\": \"Previous\",\n                \"active\": false\n            },\n            {\n                \"url\": \"https:\\/\\/memorycode.ru\\/api\\/v1\\/page?page=1\",\n                \"label\": 1,\n                \"active\": true\n            },\n            {\n                \"url\": null,\n                \"label\": \"Next\",\n                \"active\": false\n            }\n        ],\n        \"path\": \"https:\\/\\/memorycode.ru\\/api\\/v1\\/page\",\n        \"per_page\": 15,\n        \"to\": 1,\n        \"total\": 1\n    }\n}"
+						},
+						{
+							"name": "Search page Response #2",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "https://{{baseUrl}}/api/v1/page?search=id&token=fugit",
+									"protocol": "https",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"page"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "id"
+										},
+										{
+											"key": "token",
+											"value": "fugit"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"error\": \"\\u0421\\u0442\\u0440\\u0430\\u043d\\u0438\\u0446\\u044b \\u043d\\u0435 \\u043d\\u0430\\u0439\\u0434\\u0435\\u043d\\u044b\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Store page",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"page_type\": \"ratione\",\n    \"name\": \"ea\",\n    \"birthday_at\": \"sed\",\n    \"died_at\": \"omnis\",\n    \"epitaph\": \"unde\",\n    \"author_epitaph\": \"nihil\",\n    \"username\": \"ipsam\",\n    \"email\": \"quibusdam\",\n    \"phone\": \"quo\"\n}"
+						},
+						"url": {
+							"raw": "https://{{baseUrl}}/api/v1/page?token=vero",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"page"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "vero"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Store page Response #1",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"page_type\": \"ratione\",\n    \"name\": \"ea\",\n    \"birthday_at\": \"sed\",\n    \"died_at\": \"omnis\",\n    \"epitaph\": \"unde\",\n    \"author_epitaph\": \"nihil\",\n    \"username\": \"ipsam\",\n    \"email\": \"quibusdam\",\n    \"phone\": \"quo\"\n}"
+								},
+								"url": {
+									"raw": "https://{{baseUrl}}/api/v1/page?token=vero",
+									"protocol": "https",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"page"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "vero"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "null"
+						},
+						{
+							"name": "Store page Response #2",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"page_type\": \"ratione\",\n    \"name\": \"ea\",\n    \"birthday_at\": \"sed\",\n    \"died_at\": \"omnis\",\n    \"epitaph\": \"unde\",\n    \"author_epitaph\": \"nihil\",\n    \"username\": \"ipsam\",\n    \"email\": \"quibusdam\",\n    \"phone\": \"quo\"\n}"
+								},
+								"url": {
+									"raw": "https://{{baseUrl}}/api/v1/page?token=vero",
+									"protocol": "https",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"page"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "vero"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"error\": \"\\u041e\\u0448\\u0438\\u0431\\u043a\\u0430 \\u0434\\u043e\\u0431\\u0430\\u0432\\u043b\\u0435\\u043d\\u0438\\u044f \\u0441\\u0442\\u0440\\u0430\\u043d\\u0438\\u0446\\u044b\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Global search",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/v1/page/search?name=autem&died_at=dolores&phone=deserunt",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"page",
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "autem",
+									"description": "Page name"
+								},
+								{
+									"key": "died_at",
+									"value": "dolores",
+									"description": "died_at or phone required Date of death"
+								},
+								{
+									"key": "phone",
+									"value": "deserunt",
+									"description": "phone or died_at required Responsible phone number"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Global search Response #1",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "https://{{baseUrl}}/api/v1/page/search?name=autem&died_at=dolores&phone=deserunt",
+									"protocol": "https",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"page",
+										"search"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "autem",
+											"description": "Page name"
+										},
+										{
+											"key": "died_at",
+											"value": "dolores",
+											"description": "died_at or phone required Date of death"
+										},
+										{
+											"key": "phone",
+											"value": "deserunt",
+											"description": "phone or died_at required Responsible phone number"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"message\": \"\\u0414\\u043e\\u0441\\u0442\\u0443\\u043f \\u0437\\u0430\\u043f\\u0440\\u0435\\u0449\\u0435\\u043d. \\u0417\\u0430\\u043f\\u0440\\u043e\\u0441\\u0438\\u0442\\u0435 \\u0434\\u043e\\u0441\\u0442\\u0443\\u043f \\u0434\\u043b\\u044f \\u0432\\u0430\\u0448\\u0435\\u0433\\u043e IP: 127.0.0.1\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get page",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://{{baseUrl}}/api/v1/page/:slug?token=inventore",
+							"protocol": "https",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"page",
+								":slug"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "inventore"
+								}
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "52716.116253"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get page Response #1",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "https://{{baseUrl}}/api/v1/page/:slug?token=inventore",
+									"protocol": "https",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"page",
+										":slug"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "inventore"
+										}
+									],
+									"variable": [
+										{
+											"key": "slug",
+											"value": "52716.116253"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"name\": \"\\u041d\\u0438\\u043a\\u0443\\u043b\\u0438\\u043d \\u042e\\u0440\\u0438\\u0439 \\u0412\\u043b\\u0430\\u0434\\u0438\\u043c\\u0438\\u0440\\u043e\\u0432\\u0438\\u0447\",\n        \"birthday_at\": \"1921-12-18 12:00:00\",\n        \"died_at\": \"1997-08-21 12:00:00\",\n        \"epitaph\": \"\\u0418 \\u0432 \\u043e\\u0431\\u0440\\u0430\\u0437\\u0435 \\u043a\\u043b\\u043e\\u0443\\u043d\\u0430 \\u042e\\u0440\\u0438\\u043a\\u0430, \\u0438 \\u0432 \\u043e\\u0431\\u0440\\u0430\\u0437\\u0435 \\u043c\\u0430\\u0439\\u043e\\u0440\\u0430 \\u041b\\u043e\\u043f\\u0430\\u0442\\u0438\\u043d\\u0430 \\u0438\\u043b\\u0438 \\u0421\\u0435\\u043c\\u0435\\u043d\\u0430 \\u0421\\u0435\\u043c\\u0435\\u043d\\u043e\\u0432\\u0438\\u0447\\u0430 \\u043e\\u043d \\u0438\\u0433\\u0440\\u0430\\u043b \\u0441\\u0430\\u043c\\u043e\\u0433\\u043e \\u0441\\u0435\\u0431\\u044f \\u2013 \\u043a\\u0430\\u043a \\u0431\\u044b \\u043e\\u043d \\u043f\\u043e\\u0441\\u0442\\u0443\\u043f\\u0438\\u043b, \\u043e\\u043a\\u0430\\u0436\\u0438\\u0441\\u044c \\u0432 \\u0442\\u0430\\u043a\\u0438\\u0445 \\u043e\\u0431\\u0441\\u0442\\u043e\\u044f\\u0442\\u0435\\u043b\\u044c\\u0441\\u0442\\u0432\\u0430\\u0445. \\u042d\\u0442\\u043e \\u0432\\u044b\\u0441\\u0448\\u0430\\u044f \\u0441\\u0442\\u0435\\u043f\\u0435\\u043d\\u044c \\u0430\\u043a\\u0442\\u0435\\u0440\\u0441\\u043a\\u043e\\u0433\\u043e \\u0434\\u0430\\u0440\\u043e\\u0432\\u0430\\u043d\\u0438\\u044f. \\u041d\\u0435 \\u0438\\u0433\\u0440\\u0430\\u0442\\u044c \\u0440\\u043e\\u043b\\u0438, \\u0430 \\u0436\\u0438\\u0442\\u044c \\u0438\\u043c\\u0438. \\u0412\\u043e\\u0442 \\u043e\\u043d \\u2013 \\u0436\\u0438\\u043b\",\n        \"url\": \"https:\\/\\/memorycode.ru\\/page\\/55006294\",\n        \"image\": {\n            \"id\": 865,\n            \"url\": \"https:\\/\\/src.memorycode.ru\\/storage\\/app\\/public\\/865\\/media-libraryyiTbiv\"\n        }\n    }\n}"
+						},
+						{
+							"name": "Get page Response #2",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "https://{{baseUrl}}/api/v1/page/:slug?token=inventore",
+									"protocol": "https",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"page",
+										":slug"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "inventore"
+										}
+									],
+									"variable": [
+										{
+											"key": "slug",
+											"value": "52716.116253"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"error\": \"\\u0421\\u0442\\u0440\\u0430\\u043d\\u0438\\u0446\\u0430 \\u043d\\u0435 \\u043d\\u0430\\u0439\\u0434\\u0435\\u043d\\u0430\"\n}"
+						}
+					]
+				}
+			],
+			"description": "[https://mc.dev.rand.agency](https://mc.dev.rand.agency/)\n\n[https://memorycode.ru/api?javascript#login](https://memorycode.ru/api?javascript#login)"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{credentials}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "credentials",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "scope",
+			"value": "GIGACHAT_API_PERS",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "file_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "https://gigachat.devices.sberbank.ru/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "authUrl",
+			"value": "https://ngw.devices.sberbank.ru:9443/api/v2/oauth",
+			"type": "string"
+		},
+		{
+			"key": "yandex_folder_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "yandex_api_key",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "base_api_url",
+			"value": "memorycode.ru",
+			"type": "string"
+		},
+		{
+			"key": "api_email",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "api_password",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "api_phone",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,26 @@
+{
+    "app": {
+      "port": "3033"
+    },
+    "dev": true,
+    "bot": {
+      "bot_id": "bot7193262302",
+      "api_key": "AAFadZQ58TP9vGRSV4Gl0fj_GB9KAKQrTCU"
+    },
+    "yandex": {
+      "api_key": "AQVN2bAlsIPsSqVdyp-zyhZTe_-ziMavNndC9Ox8",
+      "folder_id": "b1gpt2d1mrgpkitoo7k6"
+    },
+    "gigachat":{
+      "baseUrl":"https://gigachat.devices.sberbank.ru/api/v1",
+      "authUrl":"https://ngw.devices.sberbank.ru:9443/api/v2/oauth",
+      "scope":"GIGACHAT_API_PERS",
+      "credentials":"ZWVhM2E0YjQtNWE1Zi00ZDA1LTkyNDItMjJhOGZiOWM0MDMyOmQ5MzJjN2VjLWY4N2EtNDFlNy05MDkxLTliZTJkNjU1MDI2Yg=="
+    },
+    "external": {
+      "url": "https://mc.dev.rand.agency/api",
+      "email":"team2@hackathon.ru",
+      "password": "sU8SNeXT",
+      "device":"bot-v0.0.1"
+    }
+}

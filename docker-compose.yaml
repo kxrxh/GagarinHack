@@ -1,0 +1,93 @@
+services:
+
+  ###########
+  # Backend #
+  ###########
+  # backend-api:
+  #   build: ./backend
+  #   container_name: backend-api
+  #   ports:
+  #     - '3033:3033'
+  #   environment:
+  #     - PRODUCTION=false
+  #     - PORT=3033
+  #   restart: on-failure:5
+
+  # nginx:
+  #   container_name: nginx
+  #   build: ./nginx
+  #   restart: on-failure:5
+  #   ports:
+  #     - '443:443'
+  #   depends_on:
+  #     - backend-api
+
+  python-bot:
+    build: ./bot
+    environment:
+      STORAGE_URL: http://golang-kvdb:5173/db/v1
+      TELEGRAM_API_KEY: 7193262302:AAFadZQ58TP9vGRSV4Gl0fj_GB9KAKQrTCU
+      BACKEND_URL: https://gagarinhack-1.onrender.com/api/v1/
+    depends_on:
+      - golang-kvdb
+
+  golang-kvdb:
+    build: ./kvdb
+    ports:
+      - "5173:5173"
+    environment:
+      DB_FILE: data/db.json
+      DB_PORT: 5173
+    volumes:
+      - kvdb_volume:/app/data
+
+  ###########
+  # Metrics #
+  ###########
+  # prometheus:
+  #   build: './monitoring/prometheus'
+  #   container_name: 'prometheus'
+  #   ports:
+  #     - '9090:9090'
+  # grafana:
+  #   build: './monitoring/grafana'
+  #   container_name: 'grafana'
+  #   ports:
+  #     - '3000:3000'
+
+  ############
+  # STORAGES #
+  ############
+  # database:
+  #   container_name: postgres_container
+  #   image: postgres:latest
+  #   environment:
+  #     POSTGRES_DB: "postgres"
+  #     POSTGRES_USER: "postgres"
+  #     POSTGRES_PASSWORD: "pgpwd"
+  #     PGDATA: "/var/lib/postgresql/data/pgdata"
+  #   volumes:
+  #     - ./persistence/:/docker-entrypoint-initdb.d
+  #     - ./persistence/postgres/:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 5s
+  #   restart: on-failure:3
+
+  # golang-kvdb:
+  #   build: ./kvdb
+  #   ports:
+  #     - "5173:5173"
+  #   environment:
+  #     DB_FILE: data/db.json
+  #     DB_PORT: 5173
+  #   volumes:
+  #     - kvdb_volume:/app/data
+
+volumes:
+  kvdb_volume:
