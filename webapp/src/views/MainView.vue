@@ -27,7 +27,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                       <UILabeledInput
                         type="text"
                         v-model="author">
-                        Введите ваше ФИО (автор эпитафии)
+                        Как вас зовут? (автор эпитафии, ФИО)
                       </UILabeledInput>
                       <UIButton classExtension="w-full py-2.5" @click="changeStage(STAGE.SETUP_PERSON)" :disabled="author.length < 1 || !wrappedPages.hasOwnProperty(selectedPage)">
                         Продолжить
@@ -47,16 +47,17 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                       <UILabeledInput
                         type="text"
                         v-model="name">
-                        Введите ФИО
+                        Как {{ sex == "мужского" ? "его" : "ее" }} звали?
                       </UILabeledInput>
                       <div>
                         <UILabel>
-                          Выберите дату рождения
+                          Когда {{ sex == "мужского" ? "он родился" : "она родилась" }}?
                         </UILabel>
                         <VueDatePicker v-model="dates[0]"
                           :enable-time-picker="false"
                           :max-date="dates[1]"
                           :format="formatter"
+                          :auto-position="false"
                           locale="ru-RU"
                           select-text="Выбрать"
                           cancel-text="Закрыть"
@@ -67,13 +68,14 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                       </div>
                       <div>
                         <UILabel>
-                          Выберите дату смерти
+                          Когда {{ sex == "мужского" ? "он умер" : "она умерла" }}?
                         </UILabel>
                         <VueDatePicker v-model="dates[1]"
                           :enable-time-picker="false"
                           :min-date="dates[0]"
                           :max-date="new Date()"
                           :format="formatter"
+                          :auto-position="false"
                           locale="ru-RU"
                           select-text="Выбрать"
                           cancel-text="Закрыть"
@@ -90,12 +92,12 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                       <UILabeledInput
                         type="text"
                         v-model="places[0]">
-                        Введите место рождения
+                        Где {{ sex == "мужского" ? "он родился" : "она родилась" }}?
                       </UILabeledInput>
                       <UILabeledInput
                         type="text"
                         v-model="places[1]">
-                        Введите место смерти
+                        Где {{ sex == "мужского" ? "он умер" : "она умерла" }}?
                       </UILabeledInput>
                       <UIButton classExtension="w-full py-2.5" @click="changeStage(STAGE.SETUP_RELATIVES)" :disabled="places[0].length < 1 || places[1].length < 1">
                         Продолжить
@@ -121,23 +123,23 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                       <UILabeledInput
                         type="text"
                         v-model="citizenship">
-                        Укажите гражданство
+                        В какой стране {{ sex == "мужского" ? "он жил" : "она жила" }}?
                       </UILabeledInput>
                       <UILabeledInput
                         type="text"
                         v-model="education">
-                        Укажите образование
+                        Какое у {{ sex == "мужского" ? "него" : "нее" }} было образование?
                       </UILabeledInput>
                       <UILabeledInput
                         type="text"
                         v-model="career">
-                        Укажите род деятельности
+                        Какой у {{ sex == "мужского" ? "него" : "нее" }} был род деятельности?
                       </UILabeledInput>
                       <UILabeledInput
                         type="text"
                         :textarea="true"
                         v-model="achievments">
-                        Награды, премии, достижения
+                        Какие были награды, премии, достижения?
                       </UILabeledInput>
                       <UIButton classExtension="w-full py-2.5" @click="next" :disabled="citizenship.length < 1">
                         Продолжить
@@ -202,7 +204,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
                     </div>
                     <div v-if="stage == STAGE.PROMPT_BIOGRAPHY" class="space-y-2 md:space-y-4 animate animate-fade animate-ease-in-out animate-duration-250 animate-once text-white text-center">
                       <UILabel>
-                        Хотите ли вы создать биографию {{ name }}?
+                        Хотите ли вы создать биографию для {{ name }}?
                       </UILabel>
                       <div class="grid gap-2 mb-2 grid-cols-2">
                         <UIButton color="danger" classExtension="py-2.5" @click="finish">
