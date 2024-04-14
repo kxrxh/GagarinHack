@@ -382,4 +382,4 @@ async def handle_work(message):
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(bot.polling())
+    asyncio.run(bot.infinity_polling())
