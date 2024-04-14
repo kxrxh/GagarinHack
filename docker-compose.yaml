@@ -3,27 +3,43 @@ services:
   ###########
   # Backend #
   ###########
-  backend-api:
-    build: ./backend
-    container_name: backend-api
-    ports:
-      - '3033:3033'
+  # backend-api:
+  #   build: ./backend
+  #   container_name: backend-api
+  #   ports:
+  #     - '3033:3033'
+  #   environment:
+  #     - PRODUCTION=false
+  #     - PORT=3033
+  #   restart: on-failure:5
+
+  # nginx:
+  #   container_name: nginx
+  #   build: ./nginx
+  #   restart: on-failure:5
+  #   ports:
+  #     - '443:443'
+  #   depends_on:
+  #     - backend-api
+
+  python-bot:
+    build: ./bot
     environment:
-      - PRODUCTION=false
-      - PORT=3033
-    restart: on-failure:5
-  nginx:
-    container_name: nginx
-    build: ./nginx
-    restart: on-failure:5
-    ports:
-      - '443:443'
+      STORAGE_URL: http://golang-kvdb:5173/db/v1
+      TELEGRAM_API_KEY: 7193262302:AAFadZQ58TP9vGRSV4Gl0fj_GB9KAKQrTCU
+      BACKEND_URL: https://gagarinhack-1.onrender.com/api/v1/
     depends_on:
-      - backend-api
-  # bot:
-  #  container_name: bot
-  #  build: ./bot
-  #  restart: on-failure:5
+      - golang-kvdb
+
+  golang-kvdb:
+    build: ./kvdb
+    ports:
+      - "5173:5173"
+    environment:
+      DB_FILE: data/db.json
+      DB_PORT: 5173
+    volumes:
+      - kvdb_volume:/app/data
 
   ###########
   # Metrics #
