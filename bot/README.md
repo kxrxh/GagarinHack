@@ -52,7 +52,7 @@ This is a Telegram bot that helps users create a memorial page for a deceased pe
 ```
 docker-compose up --build
 ```
-*tip: You need to use docker-compose.yml from repo root folde*
+*tip: You need to run this command from repo root folder*
 
 *Docker compose will run kvdb and bot instances*
 
