@@ -110,5 +110,12 @@ export const ExternalService = {
         return NetworkService.AuthRequest("GET", `cabinet/individual-pages`, null, cookies, response => {
             success(response.data);
         }, fail);
+    },
+    sendReport(page_id, fio, email, text, relation_role, success, fail) {
+        return NetworkService.DirectRequest("POST", `comment`,
+        { page_id, fio, email, text, relation_role, checked: true, hasEmail: email.length > 0},
+        response => {
+            success(response.data);
+        }, fail);
     }
 }

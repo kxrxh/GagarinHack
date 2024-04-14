@@ -31,4 +31,10 @@ export const MemoryService = {
             success(response.data);
         }, fail);
     },
+    getGPT: (model, request_message, success, fail) => {
+        NetworkService.ClassicRequest("POST", `v1/completion/${model}`,
+            {request_message}, response => {
+            success(response.data);
+        }, fail);
+    }
 }
